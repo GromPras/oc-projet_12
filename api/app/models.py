@@ -13,6 +13,11 @@ class Role(enum.Enum):
     SUPPORT = "support"
 
 
+class Status(enum.Enum):
+    PENDING = "pending"
+    SIGNED = "signed"
+
+
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     fullname: Mapped[str] = mapped_column(sa.String(64), index=True, unique=True)
@@ -21,6 +26,7 @@ class User(db.Model):
     role: Mapped[Role] = mapped_column(nullable=False)
     password: Mapped[Optional[str]] = mapped_column(sa.String(256))
     clients: Mapped[Optional[List["Client"]]] = relationship(back_populates='sales_contact')
+    contracts: Mapped[Optional[List["Contract"]]] = relationship(back_populates='sales_contact')
 
 
 class Client(db.Model):
@@ -29,10 +35,29 @@ class Client(db.Model):
     email: Mapped[str] = mapped_column(sa.String(120),index=True, unique=True)
     phone: Mapped[str] = mapped_column(sa.String(12))
     company: Mapped[str] = mapped_column(sa.String(120))
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
     sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('user.id'))
     sales_contact: Mapped['User'] = relationship(back_populates='clients')
+    contracts: Mapped[Optional[List["Contract"]]] = relationship(back_populates='client')
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+
+
+class Contract(db.Model):
+    def __init__(self, total_amount, status=Status.PENDING, *args, **kwargs) -> None:
+        self.remaining_amount = total_amount
+        self.status = status
+        super().__init__(*args, **kwargs)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    client_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('client.id'))
+    client: Mapped['Client'] = relationship(back_populates='contracts')
+    sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('user.id'))
+    sales_contact: Mapped['User'] = relationship(back_populates='contracts')
+    total_amount: Mapped[float] = mapped_column(sa.Float)
+    remaining_amount: Mapped[float] = mapped_column(sa.Float)
+    status: Mapped[Status] = mapped_column(default=Status.PENDING)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
 
 
 
@@ -41,16 +66,6 @@ class Client(db.Model):
 # 1. User[sales] can have many contracts
 # 1. User[support] can have many events
 
-# Client:
-# 1. id: int/uuid
-# 1. full_name: str
-# 1. email: str
-# 1. phone: str
-# 1. company: str
-# 1. created_at: date
-# 1. updated_at: date
-# 1. sales_contact: User[sales]
-#
 # Relations:
 # 1. Clients can have many contracts
 # 1. Clients must have one sales_contact
