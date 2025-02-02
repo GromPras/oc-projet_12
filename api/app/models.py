@@ -3,8 +3,12 @@ import enum
 from typing import Optional
 from typing_extensions import List
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from app import db
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Role(enum.Enum):
@@ -18,28 +22,61 @@ class Status(enum.Enum):
     SIGNED = "signed"
 
 
+sales_events = db.Table(
+    "sales_events",
+    db.Column("user_id", db.ForeignKey("user.id"), primary_key=True),
+    db.Column("event_id", db.ForeignKey("event.id"), primary_key=True),
+)
+
+
+support_events = db.Table(
+    "support_events",
+    db.Column("user_id", db.ForeignKey("user.id"), primary_key=True),
+    db.Column("event_id", db.ForeignKey("event.id"), primary_key=True),
+)
+
+
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     fullname: Mapped[str] = mapped_column(sa.String(64), index=True, unique=True)
-    email: Mapped[str] = mapped_column(sa.String(120),index=True, unique=True)
+    email: Mapped[str] = mapped_column(sa.String(120), index=True, unique=True)
     phone: Mapped[str] = mapped_column()
     role: Mapped[Role] = mapped_column(nullable=False)
     password: Mapped[Optional[str]] = mapped_column(sa.String(256))
-    clients: Mapped[Optional[List["Client"]]] = relationship(back_populates='sales_contact')
-    contracts: Mapped[Optional[List["Contract"]]] = relationship(back_populates='sales_contact')
+    clients: Mapped[Optional[List["Client"]]] = relationship(
+        back_populates="sales_contact"
+    )
+    contracts: Mapped[Optional[List["Contract"]]] = relationship(
+        back_populates="sales_contact"
+    )
+    event_sales: Mapped[Optional[List["Event"]]] = relationship(
+        secondary=sales_events, back_populates="sales_contact"
+    )
+    event_support: Mapped[Optional[List["Event"]]] = relationship(
+        secondary=support_events, back_populates="support_contact"
+    )
 
 
 class Client(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     fullname: Mapped[str] = mapped_column(sa.String(64), index=True, unique=True)
-    email: Mapped[str] = mapped_column(sa.String(120),index=True, unique=True)
+    email: Mapped[str] = mapped_column(sa.String(120), index=True, unique=True)
     phone: Mapped[str] = mapped_column(sa.String(12))
     company: Mapped[str] = mapped_column(sa.String(120))
-    sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('user.id'))
-    sales_contact: Mapped['User'] = relationship(back_populates='clients')
-    contracts: Mapped[Optional[List["Contract"]]] = relationship(back_populates='client')
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"))
+    sales_contact: Mapped["User"] = relationship(
+        back_populates="clients", foreign_keys=[sales_contact_id]
+    )
+    contracts: Mapped[Optional[List["Contract"]]] = relationship(
+        back_populates="client"
+    )
+    events: Mapped[Optional[List["Event"]]] = relationship(back_populates="client")
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc)
+    )
 
 
 class Contract(db.Model):
@@ -49,48 +86,48 @@ class Contract(db.Model):
         super().__init__(*args, **kwargs)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    client_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('client.id'))
-    client: Mapped['Client'] = relationship(back_populates='contracts')
-    sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('user.id'))
-    sales_contact: Mapped['User'] = relationship(back_populates='contracts')
+    client_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("client.id"))
+    client: Mapped["Client"] = relationship(back_populates="contracts")
+    sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"))
+    sales_contact: Mapped["User"] = relationship(
+        back_populates="contracts", foreign_keys=[sales_contact_id]
+    )
     total_amount: Mapped[float] = mapped_column(sa.Float)
     remaining_amount: Mapped[float] = mapped_column(sa.Float)
     status: Mapped[Status] = mapped_column(default=Status.PENDING)
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc)
+    )
+    events: Mapped[Optional[List["Event"]]] = relationship(back_populates="contract")
 
 
-
-# Relations:
-# 1. User[sales] can have many clients
-# 1. User[sales] can have many contracts
-# 1. User[support] can have many events
-
-# Relations:
-# 1. Clients can have many contracts
-# 1. Clients must have one sales_contact
-#
-# Contract:
-# 1. id: int/uuid
-# 1. client_id: Client.id
-# 1. sales_contact: Client.sales_contact
-# 1. total_amount: float
-# 1. remaining_amount: float
-# 1. created_at: date
-# 1. status: str(pending/signed)
-#
-# Relations:
-# 1. Contracts belong one event
-#
-# Event:
-# 1. id: int/uuid
-# 1. title: str
-# 1. contract_id: Contract.id
-# 1. client_name: Client.full_name
-# 1. sales_contact: User[sales].id
-# 1. event_date_start: datetime
-# 1. event_date_end: datetime
-# 1. support_contact: User[support].id
-# 1. location: str
-# 1. attendees: int
-# 1. notes: str
+class Event(db.Model):
+    __tablename__ = "event"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(sa.String(120))
+    contract_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("contract.id"))
+    contract: Mapped["Contract"] = relationship(back_populates="events")
+    client_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("client.id"))
+    client: Mapped["Client"] = relationship(
+        back_populates="events", foreign_keys=[client_id]
+    )
+    sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"))
+    sales_contact: Mapped["User"] = relationship(
+        secondary=sales_events,
+        backref="events_sales",
+    )
+    support_contact_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey("user.id")
+    )
+    support_contact: Mapped["User"] = relationship(
+        secondary=support_events,
+        backref="events_support",
+    )
+    event_start: Mapped[datetime] = mapped_column()
+    event_end: Mapped[datetime] = mapped_column()
+    location: Mapped[str] = mapped_column(sa.String(120))
+    attendees: Mapped[int] = mapped_column(sa.Integer)
+    notes: Mapped[str] = mapped_column(sa.Text())
