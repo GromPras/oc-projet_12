@@ -35,12 +35,15 @@ support_events = db.Table(
     db.Column("event_id", db.ForeignKey("event.id"), primary_key=True),
 )
 
+# TODO: add author on every model for delete permissions
+# TODO: add author (will serve for event creation restrictions)
+
 
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     fullname: Mapped[str] = mapped_column(sa.String(64), index=True, unique=True)
     email: Mapped[str] = mapped_column(sa.String(120), index=True, unique=True)
-    phone: Mapped[str] = mapped_column()
+    phone: Mapped[str] = mapped_column(sa.String(12))
     role: Mapped[Role] = mapped_column(nullable=False)
     password: Mapped[Optional[str]] = mapped_column(sa.String(256))
     clients: Mapped[Optional[List["Client"]]] = relationship(
@@ -49,12 +52,12 @@ class User(db.Model):
     contracts: Mapped[Optional[List["Contract"]]] = relationship(
         back_populates="sales_contact"
     )
-    event_sales: Mapped[Optional[List["Event"]]] = relationship(
-        secondary=sales_events, back_populates="sales_contact"
-    )
-    event_support: Mapped[Optional[List["Event"]]] = relationship(
-        secondary=support_events, back_populates="support_contact"
-    )
+    # event_sales: Mapped[Optional[List["Event"]]] = relationship(
+    #     secondary=sales_events, back_populates="sales_contact"
+    # )
+    # event_support: Mapped[Optional[List["Event"]]] = relationship(
+    #     secondary=support_events, back_populates="support_contact"
+    # )
 
 
 class Client(db.Model):
@@ -119,6 +122,7 @@ class Event(db.Model):
         secondary=sales_events,
         backref="events_sales",
     )
+    # make support contact optional
     support_contact_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("user.id")
     )
@@ -130,4 +134,11 @@ class Event(db.Model):
     event_end: Mapped[datetime] = mapped_column()
     location: Mapped[str] = mapped_column(sa.String(120))
     attendees: Mapped[int] = mapped_column(sa.Integer)
-    notes: Mapped[str] = mapped_column(sa.Text())
+    # make notes optional
+    notes: Mapped[Optional[str]] = mapped_column(sa.Text())
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc)
+    )
