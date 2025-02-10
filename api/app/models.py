@@ -5,6 +5,7 @@ from typing_extensions import List
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from app import db
+from werkzeug.security import check_password_hash
 
 
 class Base(DeclarativeBase):
@@ -63,6 +64,9 @@ class User(db.Model):
             "phone": self.phone,
             "role": self.role.value,
         }
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     # event_sales: Mapped[Optional[List["Event"]]] = relationship(
     #     secondary=sales_events, back_populates="sales_contact"
