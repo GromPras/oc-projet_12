@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone, tzinfo
 import enum
+import secrets
 from typing import Optional
 from typing_extensions import List
 import sqlalchemy as sa
@@ -47,6 +48,8 @@ class User(db.Model):
     phone: Mapped[str] = mapped_column(sa.String(12))
     role: Mapped[Role] = mapped_column(nullable=False)
     password: Mapped[Optional[str]] = mapped_column(sa.String(256))
+    token: Mapped[Optional[str]] = mapped_column(sa.String(32), index=True, unique=True)
+    token_expiration: Mapped[Optional[datetime]]
     clients: Mapped[Optional[List["Client"]]] = relationship(
         back_populates="sales_contact"
     )
@@ -67,6 +70,17 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+    def get_token(self, expires_in=3600):
+        now = datetime.now(timezone.utc)
+        if self.token and self.token_expiration.replace(
+            tzinfo=timezone.utc
+        ) > now + timedelta(seconds=60):
+            return self.token
+        self.token = secrets.token_hex(16)
+        self.token_expiration = now + timedelta(seconds=expires_in)
+        db.session.add(self)
+        return self.token
 
     # event_sales: Mapped[Optional[List["Event"]]] = relationship(
     #     secondary=sales_events, back_populates="sales_contact"

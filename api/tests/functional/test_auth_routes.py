@@ -34,4 +34,4 @@ def test_get_token(client):
         },
     )
     assert response.status_code == 200
-    assert {"token": ""} == response.json
+    assert response.json["token"] is not ""

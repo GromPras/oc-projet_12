@@ -4,9 +4,11 @@ from app.auth.auth import basic_auth
 
 
 @bp.route("/tokens", methods=["POST"])
-@basic_auth.login_required
+@basic_auth.login_required()
 def get_token():
-    return {"token": ""}
+    token = basic_auth.current_user().get_token()
+    db.session.commit()
+    return {"token": token}
 
 
 # @bp.route("/users", methods=["POST"])

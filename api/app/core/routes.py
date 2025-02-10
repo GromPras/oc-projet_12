@@ -7,6 +7,7 @@ from app.models import User
 # User views
 
 
+# index [auth, admin]
 @bp.route("/users", methods=["GET"])
 def user_index():
     stmt = db.select(User)
@@ -15,7 +16,6 @@ def user_index():
     return jsonify(users)
 
 
-# index [auth, admin]
 # create [auth, admin]
 # update [auth, admin]
 # destroy [auth, admin]
