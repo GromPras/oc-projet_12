@@ -56,16 +56,22 @@ def test_authenticated_list_users_without_authorization(client):
     token = get_token(client, "sales")
     response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 403
-    # assert {
-    #     "id": 1,
-    #     "fullname": "Elladine Staterfield",
-    #     "email": "estaterfield0@nsw.gov.au",
-    #     "phone": "1301924404",
-    #     "role": "sales",
-    # } in response.json
-    # assert {
-    #     "password": "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433"
-    # } not in response.json
+
+
+def test_authenticated_list_users(client):
+    token = get_token(client, "admin")
+    response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    } in response.json
+    assert {
+        "password": "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433"
+    } not in response.json
 
 
 # create [auth, admin]
