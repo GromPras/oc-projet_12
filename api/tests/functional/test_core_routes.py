@@ -56,6 +56,9 @@ def test_authenticated_list_users_without_authorization(client):
     token = get_token(client, "sales")
     response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 403
+    token = get_token(client, "support")
+    response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 403
 
 
 def test_authenticated_list_users(client):
