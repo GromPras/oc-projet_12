@@ -24,9 +24,9 @@ def client(app):
 
 
 # index [auth, admin]
-def test_list_users(client):
+def test_unauthenticated_list_users(client):
     response = client.get("/users")
-    assert response.status_code == 200
+    assert response.status_code == 401
     assert {
         "id": 1,
         "fullname": "Elladine Staterfield",
