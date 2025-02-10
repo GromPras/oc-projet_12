@@ -1,3 +1,4 @@
+import base64
 import pytest
 from app import create_app
 
@@ -21,12 +22,16 @@ def client(app):
 
 
 def test_get_token(client):
+    username = "estaterfield0@nsw.gov.au"
+    password = "test"
     response = client.post(
         "/tokens",
-        data={
-            "username": "estaterfield0@nsw.gov.au",
-            "password": "$2a$04$3lpNcHoe2iAt9dv5OsYLKuwvc1WzrDuzPRYV8zLbuMojXTVTkrHUS",
+        headers={
+            "Authorization": "Basic "
+            + base64.b64encode(bytes(username + ":" + password, "ascii")).decode(
+                "ascii"
+            )
         },
     )
     assert response.status_code == 200
-    assert {"token": ""} in response.json
+    assert {"token": ""} == response.json

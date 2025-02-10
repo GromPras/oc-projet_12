@@ -35,7 +35,7 @@ def test_list_users(client):
         "role": "sales",
     } in response.json
     assert {
-        "password": "$2a$04$3lpNcHoe2iAt9dv5OsYLKuwvc1WzrDuzPRYV8zLbuMojXTVTkrHUS"
+        "password": "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433"
     } not in response.json
 
 
