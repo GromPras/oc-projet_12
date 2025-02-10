@@ -6,7 +6,7 @@ from typing_extensions import List
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from app import db
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 class Base(DeclarativeBase):
@@ -68,6 +68,9 @@ class User(db.Model):
             "role": self.role.value,
         }
 
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
@@ -84,6 +87,13 @@ class User(db.Model):
 
     def get_roles(self):
         return self.role.value
+
+    def deserialize(self, data, new_user=False):
+        for field in ["fullname", "email", "phone", "role"]:
+            if field in data:
+                setattr(self, field, data[field])
+            if new_user and "password" in data:
+                self.set_password(data["password"])
 
     @staticmethod
     def check_token(token):
