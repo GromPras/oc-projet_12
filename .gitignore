@@ -14,4 +14,4 @@ wheels/
 
 # Documents and other files
 Documents/
-test/api/
+api/tests/api/

@@ -10,7 +10,7 @@ from app.auth.auth import token_auth
 
 # index [auth, admin]
 @bp.route("/users", methods=["GET"])
-@token_auth.login_required
+@token_auth.login_required(role="admin")
 def user_index():
     stmt = db.select(User)
     users = db.session.execute(stmt).scalars().all()

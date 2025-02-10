@@ -18,3 +18,8 @@ def verify_password(email, password):
 def verify_token(token):
     # TODO: add check_token method to User class
     return User.check_token(token) if token else None
+
+
+@token_auth.get_user_roles
+def get_user_roles(user):
+    return user.get_roles()

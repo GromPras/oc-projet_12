@@ -82,6 +82,18 @@ class User(db.Model):
         db.session.add(self)
         return self.token
 
+    def get_roles(self):
+        return self.role.value
+
+    @staticmethod
+    def check_token(token):
+        user = db.session.scalar(sa.select(User).where(User.token == token))
+        if user is None or user.token_expiration.replace(
+            tzinfo=timezone.utc
+        ) < datetime.now(timezone.utc):
+            return None
+        return user
+
     # event_sales: Mapped[Optional[List["Event"]]] = relationship(
     #     secondary=sales_events, back_populates="sales_contact"
     # )

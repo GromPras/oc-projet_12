@@ -1,4 +1,5 @@
 import pytest
+import base64
 from app import create_app
 
 
@@ -20,6 +21,28 @@ def client(app):
     yield client
 
 
+def get_token(client, role):
+    username = None
+    password = "test"
+    if role == "admin":
+        username = "qsanterh@plala.or.jp"
+    if role == "sales":
+        username = "estaterfield0@nsw.gov.au"
+    if role == "support":
+        username = "gwealthall1@indiegogo.com"
+    if username is not None:
+        response = client.post(
+            "/tokens",
+            headers={
+                "Authorization": "Basic "
+                + base64.b64encode(bytes(username + ":" + password, "ascii")).decode(
+                    "ascii"
+                )
+            },
+        )
+        return response.json["token"]
+
+
 # User routes
 
 
@@ -27,6 +50,12 @@ def client(app):
 def test_unauthenticated_list_users(client):
     response = client.get("/users")
     assert response.status_code == 401
+
+
+def test_authenticated_list_users_without_authorization(client):
+    token = get_token(client, "sales")
+    response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 403
     # assert {
     #     "id": 1,
     #     "fullname": "Elladine Staterfield",
