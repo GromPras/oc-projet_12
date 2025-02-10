@@ -52,6 +52,16 @@ class User(db.Model):
     contracts: Mapped[Optional[List["Contract"]]] = relationship(
         back_populates="sales_contact"
     )
+
+    @property
+    def serialize(self):
+        """The serialize property."""
+        return {"id": self.id, "fullname": self.fullname}
+
+    @serialize.setter
+    def serialize(self, value):
+        self._serialize = value
+
     # event_sales: Mapped[Optional[List["Event"]]] = relationship(
     #     secondary=sales_events, back_populates="sales_contact"
     # )

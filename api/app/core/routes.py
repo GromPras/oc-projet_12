@@ -1,4 +1,19 @@
+from flask import jsonify
+from app import db
+from app.core import bp
+from app.models import User
+
+
 # User views
+
+
+@bp.route("/users", methods=["GET"])
+def user_index():
+    stmt = db.select(User)
+    users = db.session.execute(stmt).scalars().all()
+    users = [user.serialize for user in users]
+    return jsonify(users)
+
 
 # index [auth, admin]
 # create [auth, admin]
