@@ -78,6 +78,32 @@ def test_authenticated_list_users(client):
 
 
 # create [auth, admin]
+def test_authenticated_create_user(client):
+    token = get_token(client, "admin")
+    new_user = {
+        "fullname": "Test User",
+        "email": "test@test.com",
+        "phone": "0123456789",
+        "role": "sales",
+        "password": "test",
+    }
+    response = client.post(
+        "/users", headers={"Authorization": f"Bearer {token}"}, data=new_user
+    )
+    assert response.status_code == 201
+    new_user_data = {
+        "id": 51,
+        "fullname": "Test User",
+        "email": "test@test.com",
+        "phone": "0123456789",
+        "role": "sales",
+    }
+    assert new_user in response.json
+    assert {
+        "password": "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433"
+    } not in response.json
+
+
 # update [auth, admin]
 # destroy [auth, admin]
 
