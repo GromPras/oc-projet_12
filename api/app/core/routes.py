@@ -2,6 +2,7 @@ from flask import jsonify
 from app import db
 from app.core import bp
 from app.models import User
+from app.auth.auth import token_auth
 
 
 # User views
@@ -9,6 +10,7 @@ from app.models import User
 
 # index [auth, admin]
 @bp.route("/users", methods=["GET"])
+@token_auth.login_required
 def user_index():
     stmt = db.select(User)
     users = db.session.execute(stmt).scalars().all()
