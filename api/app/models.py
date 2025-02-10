@@ -64,10 +64,6 @@ class User(db.Model):
             "role": self.role.value,
         }
 
-    @serialize.setter
-    def serialize(self, value):
-        self._serialize = value
-
     # event_sales: Mapped[Optional[List["Event"]]] = relationship(
     #     secondary=sales_events, back_populates="sales_contact"
     # )
