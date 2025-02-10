@@ -27,7 +27,6 @@ def client(app):
 def test_list_users(client):
     response = client.get("/users")
     assert response.status_code == 200
-    print(response.json)
     assert {
         "id": 1,
         "fullname": "Elladine Staterfield",
@@ -35,6 +34,9 @@ def test_list_users(client):
         "phone": "1301924404",
         "role": "sales",
     } in response.json
+    assert {
+        "password": "$2a$04$3lpNcHoe2iAt9dv5OsYLKuwvc1WzrDuzPRYV8zLbuMojXTVTkrHUS"
+    } not in response.json
 
 
 # create [auth, admin]
