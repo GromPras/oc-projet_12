@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 from app import db
 from app.core import bp
 from app.models import User
@@ -19,6 +19,14 @@ def user_index():
 
 
 # create [auth, admin]
+@bp.route("/users", methods=["POST"])
+@token_auth.login_required(role="admin")
+def user_create():
+    print(request.get_json())
+
+    return {}, 404
+
+
 # update [auth, admin]
 # destroy [auth, admin]
 

@@ -1,5 +1,6 @@
-import pytest
 import base64
+import json
+import pytest
 from app import create_app
 
 
@@ -88,7 +89,10 @@ def test_authenticated_create_user(client):
         "password": "test",
     }
     response = client.post(
-        "/users", headers={"Authorization": f"Bearer {token}"}, data=new_user
+        "/users",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(new_user),
+        content_type="application/json",
     )
     assert response.status_code == 201
     new_user_data = {
