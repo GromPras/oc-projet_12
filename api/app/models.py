@@ -56,7 +56,13 @@ class User(db.Model):
     @property
     def serialize(self):
         """The serialize property."""
-        return {"id": self.id, "fullname": self.fullname}
+        return {
+            "id": self.id,
+            "fullname": self.fullname,
+            "email": self.email,
+            "phone": self.phone,
+            "role": self.role.value,
+        }
 
     @serialize.setter
     def serialize(self, value):
