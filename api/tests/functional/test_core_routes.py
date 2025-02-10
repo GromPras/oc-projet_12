@@ -27,6 +27,14 @@ def client(app):
 def test_list_users(client):
     response = client.get("/users")
     assert response.status_code == 200
+    print(response.json)
+    assert {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    } in response.json
 
 
 # create [auth, admin]
