@@ -39,8 +39,10 @@ def user_create():
     return user.serialize, 201
 
 
+# show [auth, admin]
 # update [auth, admin]
-@bp.route("/users/<id>", methods=["GET", "PUT"])
+# destroy [auth, admin]
+@bp.route("/users/<id>", methods=["GET", "PUT", "DELETE"])
 @token_auth.login_required(role="admin")
 def user_update(id):
     user = db.session.scalar(sa.select(User).where(User.id == id))
@@ -57,9 +59,10 @@ def user_update(id):
                     setattr(user, field, data[field])
             db.session.commit()
             return user.serialize, 200
-
-
-# destroy [auth, admin]
+        elif request.method == "DELETE":
+            db.session.delete(user)
+            db.session.commit()
+            return {"message": "User removed"}, 200
 
 
 # Client views

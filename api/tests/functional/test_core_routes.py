@@ -168,6 +168,14 @@ def test_authorize_update_user(client):
 
 
 # destroy [auth, admin]
+def test_authorize_destroy_user(client):
+    token = get_token(client, "admin")
+    response = client.delete("/users/1", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    response = response.json
+    assert response.get("message") == "User removed"
+    response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
+    assert len(response.json) == 2
 
 
 # Client views
