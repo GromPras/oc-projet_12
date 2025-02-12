@@ -112,6 +112,19 @@ def test_authenticated_list_users(client):
     } not in response.json
 
 
+def test_authenticated_show_user(client):
+    token = get_token(client, "admin")
+    response = client.get("/users/1", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    } == response.json
+
+
 # create [auth, admin]
 def test_authenticated_create_user(client):
     token = get_token(client, "admin")
