@@ -140,6 +140,20 @@ def test_authenticated_create_user(client):
 
 
 # update [auth, admin]
+def test_authorize_update_user(client):
+    token = get_token(client, "admin")
+    update_user = {"fullname": "test update"}
+    response = client.put(
+        "/users/1",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(update_user),
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    json_user = response.json
+    assert json_user.get("fullname") == "test update"
+
+
 # destroy [auth, admin]
 
 

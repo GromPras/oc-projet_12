@@ -40,6 +40,22 @@ def user_create():
 
 
 # update [auth, admin]
+@bp.route("/users/<id>", methods=["PUT"])
+@token_auth.login_required(role="admin")
+def user_update(id):
+    data = request.get_json()
+    allowed_fields = ["fullname", "email", "phone", "role"]
+    user = db.session.scalar(sa.select(User).where(User.id == id))
+    if not user:
+        return {"error": "User doesn't exists"}, 404
+    else:
+        for field in allowed_fields:
+            if field in data:
+                setattr(user, field, data[field])
+        db.session.commit()
+    return user.serialize, 200
+
+
 # destroy [auth, admin]
 
 
