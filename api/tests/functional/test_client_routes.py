@@ -84,6 +84,29 @@ def test_list_clients(client):
     assert len(response.json) == 5
 
 
+def test_show_client(client):
+    token = get_token(client, "support")
+    response = client.get("/clients/1", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    json_client = response.json
+    assert json_client.get("fullname") == "Gilburt Scarf"
+    assert json_client.get("email") == "gscarf0@tuttocitta.it"
+    assert json_client.get("phone") == "6195732158"
+    assert json_client.get("company") == "Schulist-Hayes"
+    assert json_client.get("sales_contact") == {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    }
+
+
+def test_show_client_unauth(client):
+    response = client.get("/clients/1", headers={"Authorization": f"Bearer test"})
+    assert response.status_code == 401
+
+
 # create [auth, sales]
 def test_create_client_with_authorization(client):
     token = get_token(client, "sales")

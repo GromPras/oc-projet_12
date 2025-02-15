@@ -101,6 +101,16 @@ def client_index():
             return client.serialize, 201
 
 
+# show [auth]
+@bp.route("/clients/<id>", methods=["GET"])
+@token_auth.login_required()
+def client_show(id):
+    client = db.session.scalar(sa.select(Client).where(Client.id == id))
+    if not client:
+        return {"error": "Client doesn't exists"}, 404
+    return jsonify(client.serialize), 200
+
+
 # update [auth, author]
 @bp.route("/clients/<id>", methods=["PUT", "DELETE"])
 @token_auth.login_required(role="sales")
