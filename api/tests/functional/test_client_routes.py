@@ -177,6 +177,14 @@ def test_destroy_client(client):
     assert len(clients) == 4
 
 
+def test_destroy_client_unauthorized(client):
+    token = get_token(client, "sales")
+    response = client.delete("/clients/2", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 403
+    clients = db.session.scalars(sa.select(Client)).all()
+    assert len(clients) == 5
+
+
 # Contract views
 
 # index [auth]
