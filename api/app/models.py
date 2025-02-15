@@ -4,7 +4,13 @@ import secrets
 from typing import Optional
 from typing_extensions import List
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    DeclarativeBase,
+    validates,
+)
 from app import db
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -19,7 +25,7 @@ class Role(enum.Enum):
     SUPPORT = "support"
 
 
-class Status(enum.Enum):
+class ContractStatus(enum.Enum):
     PENDING = "pending"
     SIGNED = "signed"
 
@@ -157,8 +163,7 @@ class Client(db.Model):
 
 
 class Contract(db.Model):
-    def __init__(self, total_amount, status=Status.PENDING, *args, **kwargs) -> None:
-        self.remaining_amount = total_amount
+    def __init__(self, status=ContractStatus.PENDING, *args, **kwargs) -> None:
         self.status = status
         super().__init__(*args, **kwargs)
 
@@ -171,7 +176,7 @@ class Contract(db.Model):
     )
     total_amount: Mapped[float] = mapped_column(sa.Float)
     remaining_amount: Mapped[float] = mapped_column(sa.Float)
-    status: Mapped[Status] = mapped_column(default=Status.PENDING)
+    status: Mapped[ContractStatus] = mapped_column(default=ContractStatus.PENDING)
     created_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc)
     )
@@ -179,6 +184,12 @@ class Contract(db.Model):
         default=lambda: datetime.now(timezone.utc)
     )
     events: Mapped[Optional[List["Event"]]] = relationship(back_populates="contract")
+
+    @validates("total_amount")
+    def set_remaining_amount(self, _, total_amount):
+        if self.remaining_amount is None:
+            self.remaining_amount = total_amount
+        return total_amount
 
 
 class Event(db.Model):

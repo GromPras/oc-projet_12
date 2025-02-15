@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import pytest
 from app import create_app
-from app.models import User, Client, Contract, Event, Role, Status
+from app.models import User, Client, Contract, Event, Role, ContractStatus
 
 
 @pytest.fixture()
@@ -67,7 +67,7 @@ def test_new_contract():
         client=client, sales_contact=client.sales_contact, total_amount=1234.56
     )
     assert contract.remaining_amount == 1234.56
-    assert contract.status == Status.PENDING
+    assert contract.status == ContractStatus.PENDING
 
 
 def test_new_event():

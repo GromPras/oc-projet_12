@@ -154,27 +154,3 @@ def test_authorize_destroy_user(client):
     assert response.get("message") == "User removed"
     response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
     assert len(response.json) == 3
-
-
-# Client views
-
-# index [auth]
-# create [auth, sales]
-# update [auth, author]
-# destroy [auth, author]
-
-
-# Contract views
-
-# index [auth]
-# create [auth, admin]
-# update [auth, admin]
-# destroy [auth, author]
-
-
-# Event views
-
-# index [auth]
-# create [auth, sales] => must be client_author && contract_status == 'signed'
-# update [auth, admin, event_contact_support]
-# destroy [auth, author]

@@ -206,19 +206,3 @@ def test_destroy_client_unauthorized(client):
     assert response.status_code == 403
     clients = db.session.scalars(sa.select(Client)).all()
     assert len(clients) == 5
-
-
-# Contract views
-
-# index [auth]
-# create [auth, admin]
-# update [auth, admin]
-# destroy [auth, author]
-
-
-# Event views
-
-# index [auth]
-# create [auth, sales] => must be client_author && contract_status == 'signed'
-# update [auth, admin, event_contact_support]
-# destroy [auth, author]

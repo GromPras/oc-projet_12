@@ -39,6 +39,9 @@ def user_create():
     return user.serialize, 201
 
 
+# TODO: keep all routes on same function or separate?
+
+
 # show [auth, admin]
 # update [auth, admin]
 # destroy [auth, admin]
