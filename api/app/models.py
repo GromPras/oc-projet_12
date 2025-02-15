@@ -65,7 +65,6 @@ class User(db.Model):
 
     @property
     def serialize(self):
-        """The serialize property."""
         return {
             "id": self.id,
             "fullname": self.fullname,
@@ -144,7 +143,6 @@ class Client(db.Model):
 
     @property
     def serialize(self):
-        """The serialize property."""
         return {
             "id": self.id,
             "fullname": self.fullname,
@@ -190,6 +188,29 @@ class Contract(db.Model):
         if self.remaining_amount is None:
             self.remaining_amount = total_amount
         return total_amount
+
+    def get_client(self):
+        return self.client.serialize if self.client else None
+
+    def get_sales_contact(self):
+        return self.sales_contact.serialize if self.sales_contact else None
+
+    def get_events(self):
+        return [event.serialize for event in self.events] if self.events else []
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "client": self.get_client(),
+            "sales_contact": self.get_sales_contact(),
+            "total_amount": self.total_amount,
+            "remaining_amount": self.remaining_amount,
+            "status": self.status.value,
+            "events": self.get_events(),
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
 
 
 class Event(db.Model):

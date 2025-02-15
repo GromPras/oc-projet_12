@@ -2,7 +2,7 @@ import sqlalchemy as sa
 from flask import jsonify, request
 from app import db
 from app.core import bp
-from app.models import Role, User, Client
+from app.models import Contract, Role, User, Client
 from app.auth.auth import token_auth
 
 
@@ -16,7 +16,7 @@ def user_index():
     stmt = db.select(User)
     users = db.session.execute(stmt).scalars().all()
     users = [user.serialize for user in users]
-    return jsonify(users)
+    return jsonify(users), 200
 
 
 # create [auth, admin]
@@ -147,7 +147,17 @@ def client_update(id):
 
 # Contract views
 
+
 # index [auth]
+@bp.route("/contracts", methods=["GET"])
+@token_auth.login_required()
+def contract_index():
+    contracts = db.session.scalars(sa.select(Contract)).all()
+    contracts = [contract.serialize for contract in contracts]
+
+    return jsonify(contracts), 200
+
+
 # create [auth, admin]
 # update [auth, admin]
 # destroy [auth, author]
