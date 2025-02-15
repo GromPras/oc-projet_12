@@ -133,6 +133,23 @@ class Client(db.Model):
         default=lambda: datetime.now(timezone.utc)
     )
 
+    def get_sales_contact(self):
+        return self.sales_contact.serialize if self.sales_contact else None
+
+    @property
+    def serialize(self):
+        """The serialize property."""
+        return {
+            "id": self.id,
+            "fullname": self.fullname,
+            "email": self.email,
+            "phone": self.phone,
+            "company": self.company,
+            "sales_contact": self.get_sales_contact(),
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+
 
 class Contract(db.Model):
     def __init__(self, total_amount, status=Status.PENDING, *args, **kwargs) -> None:

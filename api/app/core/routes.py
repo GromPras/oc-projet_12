@@ -72,8 +72,8 @@ def user_update(id):
 @bp.route("/clients", methods=["GET"])
 @token_auth.login_required()
 def client_index():
-    clients = db.session.scalars(sa.select(Client)).all()
-    clients = [client.serialize() for client in clients]
+    clients = db.session.scalars(sa.select(Client).join(Client.sales_contact)).all()
+    clients = [client.serialize for client in clients]
     return jsonify(clients)
 
 

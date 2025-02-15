@@ -76,6 +76,13 @@ def test_list_clients_unauthenticated(client):
     assert response.status_code == 401
 
 
+def test_list_clients(client):
+    token = get_token(client, "sales")
+    response = client.get("/clients", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert len(response.json) == 5
+
+
 # create [auth, sales]
 # update [auth, author]
 # destroy [auth, author]
