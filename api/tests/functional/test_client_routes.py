@@ -113,6 +113,23 @@ def test_create_client_with_authorization(client):
     }
 
 
+def test_create_client_without_authorization(client):
+    token = get_token(client, "admin")
+    new_client = {
+        "fullname": "Test User",
+        "email": "test@test.com",
+        "phone": "0123456789",
+        "company": "Test company",
+    }
+    response = client.post(
+        "/clients",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(new_client),
+        content_type="application/json",
+    )
+    assert response.status_code == 403
+
+
 # update [auth, author]
 # destroy [auth, author]
 
