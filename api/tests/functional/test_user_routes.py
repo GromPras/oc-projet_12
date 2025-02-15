@@ -3,7 +3,7 @@ import json
 import pytest
 from config import TestConfig
 from app import create_app, db
-from app.models import User, Client, Event, Contract, Role
+from app.models import User, Role
 
 
 @pytest.fixture()
