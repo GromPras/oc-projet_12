@@ -48,24 +48,21 @@ def user_create():
 @bp.route("/users/<id>", methods=["GET", "PUT", "DELETE"])
 @token_auth.login_required(role="admin")
 def user_update(id):
-    user = db.session.scalar(sa.select(User).where(User.id == id))
-    if not user:
-        return {"error": "User doesn't exists"}, 404
-    else:
-        if request.method == "GET":
-            return user.serialize, 200
-        elif request.method == "PUT":
-            data = request.get_json()
-            allowed_fields = ["fullname", "email", "phone", "role"]
-            for field in allowed_fields:
-                if field in data:
-                    setattr(user, field, data[field])
-            db.session.commit()
-            return user.serialize, 200
-        elif request.method == "DELETE":
-            db.session.delete(user)
-            db.session.commit()
-            return {"message": "User removed"}, 200
+    user = db.get_or_404(User, id)
+    if request.method == "GET":
+        return user.serialize, 200
+    elif request.method == "PUT":
+        data = request.get_json()
+        allowed_fields = ["fullname", "email", "phone", "role"]
+        for field in allowed_fields:
+            if field in data:
+                setattr(user, field, data[field])
+        db.session.commit()
+        return user.serialize, 200
+    elif request.method == "DELETE":
+        db.session.delete(user)
+        db.session.commit()
+        return {"message": "User removed"}, 200
 
 
 # Client views
@@ -108,9 +105,7 @@ def client_index():
 @bp.route("/clients/<id>", methods=["GET"])
 @token_auth.login_required()
 def client_show(id):
-    client = db.session.scalar(sa.select(Client).where(Client.id == id))
-    if not client:
-        return {"error": "Client doesn't exists"}, 404
+    client = db.get_or_404(Client, id)
     return jsonify(client.serialize), 200
 
 
