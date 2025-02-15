@@ -169,6 +169,12 @@ def test_update_client_unauthorize(client):
 
 
 # destroy [auth, author]
+def test_destroy_client(client):
+    token = get_token(client, "sales")
+    response = client.delete("/clients/1", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    clients = db.session.scalars(sa.select(Client)).all()
+    assert len(clients) == 4
 
 
 # Contract views

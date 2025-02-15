@@ -102,26 +102,34 @@ def client_index():
 
 
 # update [auth, author]
-@bp.route("/clients/<id>", methods=["PUT"])
+@bp.route("/clients/<id>", methods=["PUT", "DELETE"])
 @token_auth.login_required(role="sales")
 def client_update(id):
     client = db.session.scalar(sa.select(Client).where(Client.id == id))
     if not client:
         return {"error": "Client doesn't exists"}, 404
-    if request.method == "PUT":
-        user = token_auth.current_user()
-        if user and not user.id == client.sales_contact_id:
-            return {"error": "You are not authorize to do this"}, 403
-        data = request.get_json()
-        allowed_fields = ["fullname", "email", "phone", "company", "sales_contact_id"]
-        for field in allowed_fields:
-            if field in data:
-                setattr(client, field, data[field])
-        db.session.commit()
-        return client.serialize, 200
-
-
-# destroy [auth, author]
+    user = token_auth.current_user()
+    if user and not user.id == client.sales_contact_id:
+        return {"error": "You are not authorize to do this"}, 403
+    else:
+        if request.method == "PUT":
+            data = request.get_json()
+            allowed_fields = [
+                "fullname",
+                "email",
+                "phone",
+                "company",
+                "sales_contact_id",
+            ]
+            for field in allowed_fields:
+                if field in data:
+                    setattr(client, field, data[field])
+            db.session.commit()
+            return client.serialize, 200
+        elif request.method == "DELETE":
+            db.session.delete(client)
+            db.session.commit()
+            return {"message": "Client removed"}, 200
 
 
 # Contract views
