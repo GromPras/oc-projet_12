@@ -69,6 +69,7 @@ def user_update(id):
 
 
 # index [auth]
+# create [auth, sales]
 @bp.route("/clients", methods=["GET", "POST"])
 @token_auth.login_required()
 def client_index():
@@ -100,8 +101,26 @@ def client_index():
             return client.serialize, 201
 
 
-# create [auth, sales]
 # update [auth, author]
+@bp.route("/clients/<id>", methods=["PUT"])
+@token_auth.login_required(role="sales")
+def client_update(id):
+    client = db.session.scalar(sa.select(Client).where(Client.id == id))
+    if not client:
+        return {"error": "Client doesn't exists"}, 404
+    if request.method == "PUT":
+        user = token_auth.current_user()
+        if user and not user.id == client.sales_contact_id:
+            return {"error": "You are not authorize to do this"}, 403
+        data = request.get_json()
+        allowed_fields = ["fullname", "email", "phone", "company", "sales_contact_id"]
+        for field in allowed_fields:
+            if field in data:
+                setattr(client, field, data[field])
+        db.session.commit()
+        return client.serialize, 200
+
+
 # destroy [auth, author]
 
 

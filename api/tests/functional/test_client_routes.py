@@ -1,6 +1,7 @@
 import base64
 import json
 import pytest
+import sqlalchemy as sa
 from config import TestConfig
 from app import create_app, db
 from app.models import User, Client, Event, Contract, Role
@@ -131,6 +132,42 @@ def test_create_client_without_authorization(client):
 
 
 # update [auth, author]
+def test_update_client_by_author(client):
+    token = get_token(client, "sales")
+    updated_client = {
+        "fullname": "Test update",
+    }
+    response = client.put(
+        "/clients/1",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(updated_client),
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    client = db.session.scalar(
+        sa.select(Client).where(Client.id == 1).join(Client.sales_contact)
+    )
+    assert client.fullname == "Test update"
+
+
+def test_update_client_unauthorize(client):
+    token = get_token(client, "sales")
+    updated_client = {
+        "fullname": "Test update",
+    }
+    response = client.put(
+        "/clients/2",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(updated_client),
+        content_type="application/json",
+    )
+    assert response.status_code == 403
+    client = db.session.scalar(
+        sa.select(Client).where(Client.id == 2).join(Client.sales_contact)
+    )
+    assert client.fullname == "Rebeka Asken"
+
+
 # destroy [auth, author]
 
 
