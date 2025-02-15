@@ -158,6 +158,14 @@ def contract_index():
     return jsonify(contracts), 200
 
 
+# show [auth]
+@bp.route("/contracts/<id>", methods=["GET"])
+@token_auth.login_required()
+def contract_show(id):
+    contract = db.get_or_404(Contract, id)
+    return jsonify(contract.serialize), 200
+
+
 # create [auth, admin]
 # update [auth, admin]
 # destroy [auth, author]

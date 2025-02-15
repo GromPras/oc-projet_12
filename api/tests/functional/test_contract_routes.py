@@ -87,11 +87,31 @@ def get_token(client, role):
 
 
 # index [auth]
+# TODO: test contract_list with events
 def test_contracts_list(client):
     token = get_token(client, "sales")
     response = client.get("/contracts", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     assert len(response.json) == 5
+
+
+def test_contract_show(client):
+    token = get_token(client, "sales")
+    response = client.get("/contracts/1", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    json_contract = response.json
+    client = json_contract.get("client")
+    assert client["id"] == 1
+    assert json_contract.get("sales_contact") == {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    }
+    assert json_contract.get("total_amount") == 4432.93
+    assert json_contract.get("remaining_amount") == 1486.28
+    assert json_contract.get("status") == ContractStatus.SIGNED.value
 
 
 # create [auth, admin]
