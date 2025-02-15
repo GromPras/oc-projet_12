@@ -80,7 +80,13 @@ def get_token(client, role):
 
 # Client routes
 
+
 # index [auth]
+def test_list_clients_unauthenticated(client):
+    response = client.get("/clients")
+    assert response.status_code == 401
+
+
 # create [auth, sales]
 # update [auth, author]
 # destroy [auth, author]

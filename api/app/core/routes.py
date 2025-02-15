@@ -2,7 +2,7 @@ import sqlalchemy as sa
 from flask import jsonify, request
 from app import db
 from app.core import bp
-from app.models import User, Role
+from app.models import User, Client
 from app.auth.auth import token_auth
 
 
@@ -67,7 +67,16 @@ def user_update(id):
 
 # Client views
 
+
 # index [auth]
+@bp.route("/clients", methods=["GET"])
+@token_auth.login_required()
+def client_index():
+    clients = db.session.scalars(sa.select(Client)).all()
+    clients = [client.serialize() for client in clients]
+    return jsonify(clients)
+
+
 # create [auth, sales]
 # update [auth, author]
 # destroy [auth, author]
