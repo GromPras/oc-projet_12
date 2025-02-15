@@ -3,7 +3,8 @@ import json
 import pytest
 from config import TestConfig
 from app import create_app, db
-from app.models import User, Role
+from app.models import User, Client, Role
+from mock import users as mock_users
 
 
 @pytest.fixture()
@@ -11,29 +12,6 @@ def app():
     app = create_app(config_class=TestConfig)
     with app.app_context():
         db.create_all()
-        mock_users = [
-            [
-                "Elladine Staterfield",
-                "estaterfield0@nsw.gov.au",
-                "1301924404",
-                Role.SALES,
-                "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433",
-            ],
-            [
-                "Gare Wealthall",
-                "gwealthall1@indiegogo.com",
-                "1072455114",
-                Role.SUPPORT,
-                "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433",
-            ],
-            [
-                "Querida Santer",
-                "qsanterh@plala.or.jp",
-                "4715820827",
-                Role.ADMIN,
-                "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433",
-            ],
-        ]
         for user in mock_users:
             db.session.add(
                 User(
