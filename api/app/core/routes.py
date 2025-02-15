@@ -24,9 +24,8 @@ def user_index():
 @token_auth.login_required(role="admin")
 def user_create():
     data = request.get_json()
-    required_fiels = ["fullname", "email", "phone", "role", "password"]
-    # TODO: fix typo
-    for field in required_fiels:
+    required_fields = ["fullname", "email", "phone", "role", "password"]
+    for field in required_fields:
         if field not in data:
             return {"error": "Bad request"}, 400
     if db.session.scalar(sa.select(User).where(User.email == data["email"])):
@@ -95,7 +94,6 @@ def client_index():
             client = Client()
             data["sales_contact"] = author
             client.deserialize(data)
-            print(client.serialize)
             db.session.add(client)
             db.session.commit()
 
