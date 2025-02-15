@@ -2,7 +2,7 @@ import sqlalchemy as sa
 from flask import jsonify, request
 from app import db
 from app.core import bp
-from app.models import User, Client
+from app.models import Role, User, Client
 from app.auth.auth import token_auth
 
 
@@ -25,6 +25,7 @@ def user_index():
 def user_create():
     data = request.get_json()
     required_fiels = ["fullname", "email", "phone", "role", "password"]
+    # TODO: fix typo
     for field in required_fiels:
         if field not in data:
             return {"error": "Bad request"}, 400
@@ -69,12 +70,36 @@ def user_update(id):
 
 
 # index [auth]
-@bp.route("/clients", methods=["GET"])
+@bp.route("/clients", methods=["GET", "POST"])
 @token_auth.login_required()
 def client_index():
-    clients = db.session.scalars(sa.select(Client).join(Client.sales_contact)).all()
-    clients = [client.serialize for client in clients]
-    return jsonify(clients)
+    if request.method == "GET":
+        clients = db.session.scalars(sa.select(Client).join(Client.sales_contact)).all()
+        clients = [client.serialize for client in clients]
+        return jsonify(clients)
+    elif request.method == "POST":
+        author = token_auth.current_user()
+        if author:
+            if not author.role == Role.SALES:
+                return {"message": "You are not authorized to do this"}, 403
+
+            data = request.get_json()
+            required_fields = ["fullname", "email", "phone", "company"]
+            for field in required_fields:
+                if field not in data:
+                    return {"error": "Bad request"}, 400
+            if db.session.scalar(
+                sa.select(Client).where(Client.email == data["email"])
+            ):
+                return {"error": "A client with that email already exists"}, 400
+            client = Client()
+            data["sales_contact"] = author
+            client.deserialize(data)
+            print(client.serialize)
+            db.session.add(client)
+            db.session.commit()
+
+            return client.serialize, 201
 
 
 # create [auth, sales]

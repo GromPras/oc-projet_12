@@ -84,6 +84,35 @@ def test_list_clients(client):
 
 
 # create [auth, sales]
+def test_create_client_with_authorization(client):
+    token = get_token(client, "sales")
+    new_client = {
+        "fullname": "Test User",
+        "email": "test@test.com",
+        "phone": "0123456789",
+        "company": "Test company",
+    }
+    response = client.post(
+        "/clients",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(new_client),
+        content_type="application/json",
+    )
+    assert response.status_code == 201
+    json_client = response.json
+    assert json_client.get("fullname") == "Test User"
+    assert json_client.get("email") == "test@test.com"
+    assert json_client.get("phone") == "0123456789"
+    assert json_client.get("company") == "Test company"
+    assert json_client.get("sales_contact") == {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    }
+
+
 # update [auth, author]
 # destroy [auth, author]
 

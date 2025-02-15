@@ -150,6 +150,11 @@ class Client(db.Model):
             "updated_at": self.updated_at,
         }
 
+    def deserialize(self, data):
+        for field in ["fullname", "email", "phone", "company", "sales_contact"]:
+            if field in data:
+                setattr(self, field, data[field])
+
 
 class Contract(db.Model):
     def __init__(self, total_amount, status=Status.PENDING, *args, **kwargs) -> None:
