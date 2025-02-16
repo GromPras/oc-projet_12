@@ -187,12 +187,13 @@ def contract_update(id):
     allowed_fields = ["sales_contact_id", "total_amount", "remaining_amount", "status"]
     for field in allowed_fields:
         if field in data:
-            # convert status string to enum
-            data[field] = (
-                ContractStatus.SIGNED
-                if field == "status" and data[field] == "signed"
-                else ContractStatus.PENDING
-            )
+            # convert status string to enum if set
+            if field == "status":
+                data[field] = (
+                    ContractStatus.SIGNED
+                    if data[field] == "signed"
+                    else ContractStatus.PENDING
+                )
             setattr(contract, field, data[field])
     db.session.commit()
     return contract.serialize, 200
