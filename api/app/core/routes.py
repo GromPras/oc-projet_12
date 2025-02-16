@@ -162,6 +162,22 @@ def contract_show(id):
 
 
 # create [auth, admin]
+@bp.route("/contracts", methods=["POST"])
+@token_auth.login_required(role="admin")
+def contract_create():
+    data = request.get_json()
+    required_fields = ["client_id", "sales_contact_id", "total_amount"]
+    for field in required_fields:
+        if field not in data:
+            return {"error": "Bad request"}, 400
+    contract = Contract()
+    contract.deserialize(data)
+    db.session.add(contract)
+    db.session.commit()
+
+    return contract.serialize, 201
+
+
 # update [auth, admin]
 # destroy [auth, author]
 

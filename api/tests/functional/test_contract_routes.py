@@ -115,6 +115,36 @@ def test_contract_show(client):
 
 
 # create [auth, admin]
+def test_contract_create(client):
+    token = get_token(client, "admin")
+    new_contract = {
+        "client_id": 1,
+        "sales_contact_id": 1,
+        "total_amount": 999.99,
+    }
+    response = client.post(
+        "/contracts",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(new_contract),
+        content_type="application/json",
+    )
+    assert response.status_code == 201
+    json_contract = response.json
+    assert json_contract.get("remaining_amount") == 999.99
+    assert json_contract.get("status") == ContractStatus.PENDING.value
+    assert json_contract["client"].get("fullname") == "Gilburt Scarf"
+    assert json_contract["client"].get("email") == "gscarf0@tuttocitta.it"
+    assert json_contract["client"].get("phone") == "6195732158"
+    assert json_contract["client"].get("company") == "Schulist-Hayes"
+    assert json_contract.get("sales_contact") == {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    }
+
+
 # update [auth, admin]
 # destroy [auth, author]
 

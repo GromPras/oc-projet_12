@@ -212,6 +212,11 @@ class Contract(db.Model):
             "updated_at": self.updated_at,
         }
 
+    def deserialize(self, data):
+        for field in ["client_id", "sales_contact_id", "total_amount"]:
+            if field in data:
+                setattr(self, field, data[field])
+
 
 class Event(db.Model):
     __tablename__ = "event"
