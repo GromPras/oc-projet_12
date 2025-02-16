@@ -146,6 +146,32 @@ def test_contract_create(client):
 
 
 # update [auth, admin]
+def test_update_contract(client):
+    token = get_token(client, "admin")
+    update_contract = {"status": "signed"}
+    response = client.put(
+        "/contracts/3",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(update_contract),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    json_contract = response.json
+    assert json_contract.get("status") == ContractStatus.SIGNED.value
+    assert json_contract["client"].get("fullname") == "Gilburt Scarf"
+    assert json_contract["client"].get("email") == "gscarf0@tuttocitta.it"
+    assert json_contract["client"].get("phone") == "6195732158"
+    assert json_contract["client"].get("company") == "Schulist-Hayes"
+    assert json_contract.get("sales_contact") == {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    }
+
+
 # destroy [auth, author]
 
 

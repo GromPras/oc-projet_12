@@ -2,7 +2,7 @@ import sqlalchemy as sa
 from flask import jsonify, request
 from app import db
 from app.core import bp
-from app.models import Contract, Role, User, Client
+from app.models import Contract, ContractStatus, Role, User, Client
 from app.auth.auth import token_auth
 
 
@@ -179,6 +179,25 @@ def contract_create():
 
 
 # update [auth, admin]
+@bp.route("/contracts/<id>", methods=["PUT"])
+@token_auth.login_required(role="admin")
+def contract_update(id):
+    contract = db.get_or_404(Contract, id)
+    data = request.get_json()
+    allowed_fields = ["sales_contact_id", "total_amount", "remaining_amount", "status"]
+    for field in allowed_fields:
+        if field in data:
+            # convert status string to enum
+            data[field] = (
+                ContractStatus.SIGNED
+                if field == "status" and data[field] == "signed"
+                else ContractStatus.PENDING
+            )
+            setattr(contract, field, data[field])
+    db.session.commit()
+    return contract.serialize, 200
+
+
 # destroy [auth, author]
 
 

@@ -72,7 +72,7 @@ clients = [
 contracts = [
     [1, 1, 4432.93, 1486.28, ContractStatus.SIGNED],
     [2, 4, 802.91, 4868.02, ContractStatus.SIGNED],
-    [3, 1, 1603.67, 4283.48, ContractStatus.PENDING],
+    [1, 1, 1603.67, 4283.48, ContractStatus.PENDING],
     [4, 1, 2629.66, 1337.22, ContractStatus.PENDING],
     [5, 1, 3465.32, 374.14, ContractStatus.PENDING],
 ]
