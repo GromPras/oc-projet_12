@@ -29,6 +29,13 @@ users = [
         Role.ADMIN,
         "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433",
     ],
+    [
+        "Codie Arnoud",
+        "carnoud2@spiegel.de",
+        "2261299360",
+        Role.SUPPORT,
+        "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433",
+    ],
 ]
 
 clients = [
@@ -75,4 +82,43 @@ contracts = [
     [1, 1, 1603.67, 4283.48, ContractStatus.PENDING],
     [4, 1, 2629.66, 1337.22, ContractStatus.PENDING],
     [5, 1, 3465.32, 374.14, ContractStatus.PENDING],
+]
+
+events = [
+    [
+        "Multi-tiered actuating database",
+        1,
+        1,
+        1,
+        2,
+        "2024-05-11 00:00:00",
+        "2024-03-07 00:00:00",
+        "Curvelo",
+        104,
+        "Etiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem.\n\nPraesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio.\n\nCras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.",
+    ],
+    [
+        "Reduced radical budgetary management",
+        2,
+        2,
+        4,
+        2,
+        "2024-09-16 00:00:00",
+        "2024-10-15 00:00:00",
+        "Kiruna",
+        115,
+        "Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat.\n\nPraesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede.",
+    ],
+    [
+        "Synergized asynchronous matrix",
+        3,
+        1,
+        1,
+        5,
+        "2024-06-07 00:00:00",
+        "2024-11-07 00:00:00",
+        "Azurva",
+        123,
+        "Quisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros.\n\nVestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat.\n\nIn congue. Etiam justo. Etiam pretium iaculis justo.",
+    ],
 ]

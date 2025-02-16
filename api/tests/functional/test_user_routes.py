@@ -121,7 +121,7 @@ def test_authenticated_create_user(client):
     )
     assert response.status_code == 201
     new_user_data = {
-        "id": 5,
+        "id": 6,
         "fullname": "Test User",
         "email": "test@test.com",
         "phone": "0123456789",
@@ -153,4 +153,4 @@ def test_authorize_destroy_user(client):
     response = response.json
     assert response.get("message") == "User removed"
     response = client.get("/users", headers={"Authorization": f"Bearer {token}"})
-    assert len(response.json) == 3
+    assert len(response.json) == 4
