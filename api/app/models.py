@@ -253,3 +253,27 @@ class Event(db.Model):
     updated_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc)
     )
+
+    def get_client(self):
+        return self.client.serialize if self.client else None
+
+    def get_sales_contact(self):
+        return self.sales_contact.serialize if self.sales_contact else None
+
+    def get_support_contact(self):
+        return self.support_contact.serialize if self.support_contact else None
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "client": self.get_client(),
+            "sales_contact": self.get_sales_contact(),
+            "support_contact": self.get_support_contact(),
+            "event_start": self.event_start,
+            "event_end": self.event_end,
+            "location": self.location,
+            "attendees": self.attendees,
+            "notes": self.notes,
+        }

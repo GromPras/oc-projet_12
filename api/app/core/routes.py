@@ -2,7 +2,7 @@ import sqlalchemy as sa
 from flask import jsonify, request
 from app import db
 from app.core import bp
-from app.models import Contract, ContractStatus, Role, User, Client
+from app.models import Contract, ContractStatus, Role, User, Client, Event
 from app.auth.auth import token_auth
 
 
@@ -212,7 +212,17 @@ def contract_update(id):
 
 # Event views
 
+
 # index [auth]
+@bp.route("/events", methods=["GET"])
+@token_auth.login_required()
+def event_index():
+    events = db.session.scalars(sa.select(Event)).all()
+    events = [event.serialize for event in events]
+
+    return jsonify(events), 200
+
+
 # create [auth, sales] => must be client_author && contract_status == 'signed'
 # update [auth, admin, event_contact_support]
 # destroy [auth, author]
