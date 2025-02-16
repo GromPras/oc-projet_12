@@ -179,6 +179,7 @@ def contract_create():
 
 
 # update [auth, admin]
+# destroy [auth, author]
 @bp.route("/contracts/<id>", methods=["PUT", "DELETE"])
 @token_auth.login_required(role="admin")
 def contract_update(id):
@@ -207,9 +208,6 @@ def contract_update(id):
         db.session.delete(contract)
         db.session.commit()
         return {"message": "Contract removed"}, 200
-
-
-# destroy [auth, author]
 
 
 # Event views

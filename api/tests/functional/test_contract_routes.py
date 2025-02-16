@@ -200,6 +200,7 @@ def test_update_contract_amount(client):
 
 
 # destroy [auth, author]
+# TODO: destroying a contract should also destroy related events
 def test_destroy_contract(client):
     token = get_token(client, "admin")
     response = client.delete(
@@ -209,11 +210,3 @@ def test_destroy_contract(client):
     assert response.status_code == 200
     contracts = db.session.scalars(sa.select(Contract)).all()
     assert len(contracts) == 4
-
-
-# Event views
-
-# index [auth]
-# create [auth, sales] => must be client_author && contract_status == 'signed'
-# update [auth, admin, event_contact_support]
-# destroy [auth, author]
