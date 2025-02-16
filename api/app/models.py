@@ -230,15 +230,16 @@ class Event(db.Model):
     )
     sales_contact_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"))
     sales_contact: Mapped["User"] = relationship(
-        secondary=sales_events,
+        "User",
+        foreign_keys=[sales_contact_id],
         backref="events_sales",
     )
-    # make support contact optional
     support_contact_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("user.id")
     )
     support_contact: Mapped["User"] = relationship(
-        secondary=support_events,
+        "User",
+        foreign_keys=[support_contact_id],
         backref="events_support",
     )
     event_start: Mapped[datetime] = mapped_column()

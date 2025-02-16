@@ -111,6 +111,29 @@ def test_event_index(client):
     assert len(response.json) == 3
 
 
+def test_event_show(client):
+    token = get_token(client, "support")
+    response = client.get("/events/1", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    json_event = response.json
+    assert json_event["title"] == "Multi-tiered actuating database"
+    assert json_event["client"]["id"] == 1
+    assert json_event["sales_contact"] == {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    }
+    assert json_event["support_contact"] == {
+        "id": 2,
+        "fullname": "Gare Wealthall",
+        "email": "gwealthall1@indiegogo.com",
+        "phone": "1072455114",
+        "role": "support",
+    }
+
+
 # create [auth, sales] => must be client_author && contract_status == 'signed'
 # update [auth, admin, event_contact_support]
 # destroy [auth, author]

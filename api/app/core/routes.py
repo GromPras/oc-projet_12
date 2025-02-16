@@ -223,6 +223,14 @@ def event_index():
     return jsonify(events), 200
 
 
+# show [auth]
+@bp.route("/events/<id>", methods=["GET"])
+@token_auth.login_required()
+def event_show(id):
+    event = db.get_or_404(Event, id)
+    return jsonify(event.serialize), 200
+
+
 # create [auth, sales] => must be client_author && contract_status == 'signed'
 # update [auth, admin, event_contact_support]
 # destroy [auth, author]
