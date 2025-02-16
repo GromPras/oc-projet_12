@@ -297,3 +297,11 @@ def test_destroy_event(client):
     assert response.status_code == 200
     events = db.session.scalars(sa.select(Event)).all()
     assert len(events) == 3
+
+
+def test_destroy_event_unauthorized(client):
+    token = get_token(client, "sales")
+    response = client.delete("/events/2", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 403
+    events = db.session.scalars(sa.select(Event)).all()
+    assert len(events) == 4
