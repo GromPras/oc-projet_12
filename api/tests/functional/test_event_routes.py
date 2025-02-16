@@ -1,4 +1,5 @@
 import base64
+import json
 import pytest
 import sqlalchemy as sa
 from datetime import datetime
@@ -135,5 +136,39 @@ def test_event_show(client):
 
 
 # create [auth, sales] => must be client_author && contract_status == 'signed'
+def test_event_create(client):
+    token = get_token(client, "sales")
+    new_event = {
+        "title": "Test title",
+        "contract_id": 1,
+        "client_id": 1,
+        "event_start": "2024-05-11 00:00:00",
+        "event_end": "2024-03-07 00:00:00",
+        "location": "test",
+        "attendees": 42,
+    }
+    response = client.post(
+        "/events",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(new_event),
+        content_type="application/json",
+    )
+    assert response.status_code == 201
+    json_event = response.json
+    assert json_event["title"] == "Test title"
+    assert json_event["event_start"] == "2024-05-11 00:00:00"
+    assert json_event["event_end"] == "2024-03-07 00:00:00"
+    assert json_event["location"] == "test"
+    assert json_event["attendees"] == 42
+    assert json_event["client"]["id"] == 1
+    assert json_event["sales_contact"] == {
+        "id": 1,
+        "fullname": "Elladine Staterfield",
+        "email": "estaterfield0@nsw.gov.au",
+        "phone": "1301924404",
+        "role": "sales",
+    }
+
+
 # update [auth, admin, event_contact_support]
 # destroy [auth, author]

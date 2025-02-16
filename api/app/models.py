@@ -234,7 +234,7 @@ class Event(db.Model):
         foreign_keys=[sales_contact_id],
         backref="events_sales",
     )
-    support_contact_id: Mapped[int] = mapped_column(
+    support_contact_id: Mapped[Optional[int]] = mapped_column(
         sa.Integer, sa.ForeignKey("user.id")
     )
     support_contact: Mapped["User"] = relationship(
@@ -266,15 +266,36 @@ class Event(db.Model):
 
     @property
     def serialize(self):
+        date_format = "%Y-%m-%d %H:%M:%S"
         return {
             "id": self.id,
             "title": self.title,
             "client": self.get_client(),
             "sales_contact": self.get_sales_contact(),
             "support_contact": self.get_support_contact(),
-            "event_start": self.event_start,
-            "event_end": self.event_end,
+            "event_start": datetime.strftime(self.event_start, date_format),
+            "event_end": datetime.strftime(self.event_end, date_format),
             "location": self.location,
             "attendees": self.attendees,
             "notes": self.notes,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
         }
+
+    def deserialize(self, data):
+        for field in [
+            "title",
+            "contract_id",
+            "client_id",
+            "sales_contact_id",
+            "event_start",
+            "event_end",
+            "location",
+            "attendees",
+            "note",
+        ]:
+            if field in data:
+                if field == "event_start" or field == "event_end":
+                    date_format = "%Y-%m-%d %H:%M:%S"
+                    data[field] = datetime.strptime(data[field], date_format)
+                setattr(self, field, data[field])

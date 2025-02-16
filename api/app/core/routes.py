@@ -1,3 +1,4 @@
+from secrets import token_hex
 import sqlalchemy as sa
 from flask import jsonify, request
 from app import db
@@ -232,5 +233,41 @@ def event_show(id):
 
 
 # create [auth, sales] => must be client_author && contract_status == 'signed'
+@bp.route("/events", methods=["POST"])
+@token_auth.login_required(role="sales")
+def event_create():
+    data = request.get_json()
+    required_fields = [
+        "title",
+        "contract_id",
+        "client_id",
+        "event_start",
+        "event_end",
+        "location",
+        "attendees",
+    ]
+    for field in required_fields:
+        if not field in data:
+            return {"error": "Bad request"}, 400
+    # make sure client exists, contract is related and current_user is in contact
+    client = db.get_or_404(Client, data["client_id"])
+    contract = db.get_or_404(Contract, data["contract_id"])
+    current_user = token_auth.current_user()
+    if (
+        not contract.client_id == client.id
+        or not client.sales_contact_id == current_user.id
+        or not contract.status.value == "signed"
+    ):
+        return {"error": "You are not authorized to do this"}, 403
+
+    data["sales_contact_id"] = current_user.id
+    event = Event()
+    event.deserialize(data)
+    db.session.add(event)
+    db.session.commit()
+
+    return event.serialize, 201
+
+
 # update [auth, admin, event_contact_support]
 # destroy [auth, author]

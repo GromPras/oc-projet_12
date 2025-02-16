@@ -26,7 +26,7 @@ users = [
         "Seth Mossman",
         "smossman3@miibeian.gov.cn",
         "1244349758",
-        Role.ADMIN,
+        Role.SALES,
         "scrypt:32768:8:1$OFgFJ0hJU9srVuTx$1b2ff4574cd389274249130b15639f63fb23b7d86aff85d73268ab62c1f3b81e7c884890df41bcd83ca459eff0cbcd9854e52356557a265e4c57d6d7f0c17433",
     ],
     [
