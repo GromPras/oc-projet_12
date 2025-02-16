@@ -236,6 +236,21 @@ def test_add_support_from_admin(client):
     }
 
 
+def test_add_support_from_support(client):
+    token = get_token(client, "support")
+    update_event = {"support_contact_id": 2}
+    response = client.put(
+        "/events/4/add-support",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(update_event),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 403
+    event = db.get_or_404(Event, 4)
+    assert event.support_contact == None
+
+
 def test_update_from_support(client):
     token = get_token(client, "support")
     update_event = {"notes": "Test update"}
@@ -256,6 +271,21 @@ def test_update_from_support(client):
         "phone": "1072455114",
         "role": "support",
     }
+
+
+def test_update_from_support_unauthorized(client):
+    token = get_token(client, "support")
+    update_event = {"support_contact_id": 2}
+    response = client.put(
+        "/events/4",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(update_event),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 403
+    event = db.get_or_404(Event, 4)
+    assert event.support_contact == None
 
 
 # destroy [auth, author]
