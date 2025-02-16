@@ -3,6 +3,8 @@ import json
 import pytest
 import sqlalchemy as sa
 from datetime import datetime
+
+from werkzeug.datastructures import headers
 from config import TestConfig
 from app import create_app, db
 from app.models import User, Client, Event, Contract, Role, ContractStatus
@@ -289,3 +291,9 @@ def test_update_from_support_unauthorized(client):
 
 
 # destroy [auth, author]
+def test_destroy_event(client):
+    token = get_token(client, "sales")
+    response = client.delete("/events/1", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    events = db.session.scalars(sa.select(Event)).all()
+    assert len(events) == 3

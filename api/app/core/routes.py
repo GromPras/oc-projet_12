@@ -289,6 +289,8 @@ def event_add_support(id):
     return event.serialize, 200
 
 
+# update [auth, sales]
+# destroy [auth, author]
 @bp.route("/events/<id>", methods=["PUT"])
 @token_auth.login_required(role="support")
 def event_update(id):
@@ -314,4 +316,13 @@ def event_update(id):
     return event.serialize, 200
 
 
-# destroy [auth, author]
+@bp.route("/events/<id>", methods=["DELETE"])
+@token_auth.login_required(role="sales")
+def event_destroy(id):
+    event = db.get_or_404(Event, id)
+    current_user = token_auth.current_user()
+    if current_user.id is not event.sales_contact_id:
+        return {"error": "You are not authorized to do this"}, 403
+    db.session.delete(event)
+    db.session.commit()
+    return {"message": "Event removed"}, 200
