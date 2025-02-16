@@ -200,6 +200,15 @@ def test_update_contract_amount(client):
 
 
 # destroy [auth, author]
+def test_destroy_contract(client):
+    token = get_token(client, "admin")
+    response = client.delete(
+        "/contracts/3",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+    contracts = db.session.scalars(sa.select(Contract)).all()
+    assert len(contracts) == 4
 
 
 # Event views
