@@ -139,7 +139,7 @@ def test_event_show(client):
 def test_event_create(client):
     token = get_token(client, "sales")
     new_event = {
-        "title": "Test title",
+        "title": "test title",
         "contract_id": 1,
         "client_id": 1,
         "event_start": "2024-05-11 00:00:00",
@@ -149,13 +149,13 @@ def test_event_create(client):
     }
     response = client.post(
         "/events",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"authorization": f"bearer {token}"},
         data=json.dumps(new_event),
         content_type="application/json",
     )
     assert response.status_code == 201
     json_event = response.json
-    assert json_event["title"] == "Test title"
+    assert json_event["title"] == "test title"
     assert json_event["event_start"] == "2024-05-11 00:00:00"
     assert json_event["event_end"] == "2024-03-07 00:00:00"
     assert json_event["location"] == "test"
@@ -168,6 +168,28 @@ def test_event_create(client):
         "phone": "1301924404",
         "role": "sales",
     }
+
+
+def test_event_create_without_authorization(client):
+    token = get_token(client, "sales")
+    new_event = {
+        "title": "test title",
+        "contract_id": 2,
+        "client_id": 2,
+        "event_start": "2024-05-11 00:00:00",
+        "event_end": "2024-03-07 00:00:00",
+        "location": "test",
+        "attendees": 42,
+    }
+    response = client.post(
+        "/events",
+        headers={"authorization": f"bearer {token}"},
+        data=json.dumps(new_event),
+        content_type="application/json",
+    )
+    assert response.status_code == 403
+    events = db.session.scalars(sa.select(Event)).all()
+    assert len(events) == 3
 
 
 # update [auth, admin, event_contact_support]
