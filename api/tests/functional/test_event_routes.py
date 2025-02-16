@@ -109,7 +109,7 @@ def test_event_index(client):
     token = get_token(client, "support")
     response = client.get("/events", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
-    assert len(response.json) == 3
+    assert len(response.json) == 4
 
 
 def test_event_show(client):
@@ -189,7 +189,7 @@ def test_event_create_without_authorization(client):
     )
     assert response.status_code == 403
     events = db.session.scalars(sa.select(Event)).all()
-    assert len(events) == 3
+    assert len(events) == 4
 
 
 def test_event_create_on_pending_contract(client):
@@ -211,8 +211,51 @@ def test_event_create_on_pending_contract(client):
     )
     assert response.status_code == 403
     events = db.session.scalars(sa.select(Event)).all()
-    assert len(events) == 3
+    assert len(events) == 4
 
 
 # update [auth, admin, event_contact_support]
+def test_add_support_from_admin(client):
+    token = get_token(client, "admin")
+    update_event = {"support_contact_id": 2}
+    response = client.put(
+        "/events/4/add-support",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(update_event),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    json_event = response.json
+    assert json_event["support_contact"] == {
+        "id": 2,
+        "fullname": "Gare Wealthall",
+        "email": "gwealthall1@indiegogo.com",
+        "phone": "1072455114",
+        "role": "support",
+    }
+
+
+def test_update_from_support(client):
+    token = get_token(client, "support")
+    update_event = {"notes": "Test update"}
+    response = client.put(
+        "/events/1",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(update_event),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    json_event = response.json
+    assert json_event["notes"] == "Test update"
+    assert json_event["support_contact"] == {
+        "id": 2,
+        "fullname": "Gare Wealthall",
+        "email": "gwealthall1@indiegogo.com",
+        "phone": "1072455114",
+        "role": "support",
+    }
+
+
 # destroy [auth, author]

@@ -1,6 +1,7 @@
 from secrets import token_hex
 import sqlalchemy as sa
 from flask import jsonify, request
+from sqlalchemy.sql.functions import current_user
 from app import db
 from app.core import bp
 from app.models import Contract, ContractStatus, Role, User, Client, Event
@@ -269,5 +270,48 @@ def event_create():
     return event.serialize, 201
 
 
-# update [auth, admin, event_contact_support]
+# update [auth, admin]
+# add support_contact to event
+@bp.route("/events/<id>/add-support", methods=["PUT"])
+@token_auth.login_required(role="admin")
+def event_add_support(id):
+    event = db.get_or_404(Event, id)
+    data = request.get_json()
+    allowed_fields = ["support_contact_id"]
+    support_contact = None
+    for field in allowed_fields:
+        if field in data:
+            support_contact = db.get_or_404(User, data[field])
+    if support_contact.role is not Role.SUPPORT:
+        return {"error": "Bad request"}, 400
+    setattr(event, "support_contact_id", support_contact.id)
+    db.session.commit()
+    return event.serialize, 200
+
+
+@bp.route("/events/<id>", methods=["PUT"])
+@token_auth.login_required(role="support")
+def event_update(id):
+    event = db.get_or_404(Event, id)
+    current_user = token_auth.current_user()
+    if not event.support_contact_id or event.support_contact_id is not current_user.id:
+        return {"error": "You are not authorized to do this"}, 403
+
+    data = request.get_json()
+    allowed_fields = [
+        "title",
+        "event_start",
+        "event_end",
+        "location",
+        "attendees",
+        "notes",
+    ]
+
+    for field in allowed_fields:
+        if field in data:
+            setattr(event, field, data[field])
+    db.session.commit()
+    return event.serialize, 200
+
+
 # destroy [auth, author]
