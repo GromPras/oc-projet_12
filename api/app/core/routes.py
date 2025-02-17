@@ -217,7 +217,17 @@ def contract_update(id):
 @bp.route("/events", methods=["GET"])
 @token_auth.login_required()
 def event_index():
-    events = db.session.scalars(sa.select(Event)).all()
+    conditions = []
+    filter_support = request.args.get("support")
+    if filter_support:
+        if filter_support == "none":
+            conditions.append(Event.support_contact_id == None)
+        if filter_support == "current-user":
+            conditions.append(Event.support_contact_id == token_auth.current_user().id)
+    if conditions:
+        events = db.session.scalars(sa.select(Event).where(*conditions)).all()
+    else:
+        events = db.session.scalars(sa.select(Event)).all()
     events = [event.serialize for event in events]
 
     return jsonify(events), 200
