@@ -1,7 +1,6 @@
-from secrets import token_hex
 import sqlalchemy as sa
 from flask import jsonify, request
-from sqlalchemy.sql.functions import current_user
+from werkzeug.security import generate_password_hash
 from app import db
 from app.core import bp
 from app.models import Contract, ContractStatus, Role, User, Client, Event
@@ -55,9 +54,11 @@ def user_update(id):
         return user.serialize, 200
     elif request.method == "PUT":
         data = request.get_json()
-        allowed_fields = ["fullname", "email", "phone", "role"]
+        allowed_fields = ["fullname", "email", "phone", "role", "password"]
         for field in allowed_fields:
             if field in data:
+                if field == "password":
+                    field = generate_password_hash(field)
                 setattr(user, field, data[field])
         db.session.commit()
         return user.serialize, 200
