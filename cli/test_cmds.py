@@ -23,6 +23,19 @@ def test_contracts_list():
     assert "Contracts" in result.stdout
 
 
+def test_contracts_list_with_filters():
+    result = runner.invoke(
+        app, ["contracts", "list" "--pending"], input="testadmin@test.com\ntest"
+    )
+    assert result.exit_code == 0
+    assert "Contracts" in result.stdout
+    result = runner.invoke(
+        app, ["contracts", "list" "--owing"], input="testadmin@test.com\ntest"
+    )
+    assert result.exit_code == 0
+    assert "Contracts" in result.stdout
+
+
 def test_events_list():
     result = runner.invoke(app, ["events", "list"], input="testadmin@test.com\ntest")
     assert result.exit_code == 0
