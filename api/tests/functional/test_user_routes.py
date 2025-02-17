@@ -1,9 +1,10 @@
 import base64
 import json
 import pytest
+from werkzeug.security import check_password_hash
 from config import TestConfig
 from app import create_app, db
-from app.models import User, Client, Role
+from app.models import User
 from mock import users as mock_users
 
 
@@ -143,6 +144,34 @@ def test_authorize_update_user(client):
     assert response.status_code == 200
     json_user = response.json
     assert json_user.get("fullname") == "test update"
+
+
+def test_update_user_password(client):
+    token = get_token(client, "admin")
+    new_user = {
+        "fullname": "Test User",
+        "email": "test@test.com",
+        "phone": "0123456789",
+        "role": "SALES",
+        "password": "testnewpassword",
+    }
+    response = client.post(
+        "/users",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(new_user),
+        content_type="application/json",
+    )
+    update_user = {"password": "test"}
+    response = client.put(
+        "/users/6",
+        headers={"Authorization": f"Bearer {token}"},
+        data=json.dumps(update_user),
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    updated_user = db.get_or_404(User, 6)
+    print(updated_user.check_password("test"))
+    assert updated_user.check_password("test") == True
 
 
 # destroy [auth, admin]

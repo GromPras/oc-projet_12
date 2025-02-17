@@ -58,8 +58,9 @@ def user_update(id):
         for field in allowed_fields:
             if field in data:
                 if field == "password":
-                    field = generate_password_hash(field)
-                setattr(user, field, data[field])
+                    user.set_password(data[field])
+                else:
+                    setattr(user, field, data[field])
         db.session.commit()
         return user.serialize, 200
     elif request.method == "DELETE":
