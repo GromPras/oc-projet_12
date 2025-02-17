@@ -147,7 +147,18 @@ def client_update(id):
 @bp.route("/contracts", methods=["GET"])
 @token_auth.login_required()
 def contract_index():
-    contracts = db.session.scalars(sa.select(Contract)).all()
+    conditions = []
+    filter_status = request.args.get("status")
+    filter_remaining_amount = request.args.get("remaining-amount")
+    if filter_status and filter_status == "pending":
+        conditions.append(Contract.status == ContractStatus.PENDING)
+    if filter_remaining_amount:
+        conditions.append(Contract.remaining_amount > 0.0)
+    if conditions:
+        contracts = db.session.scalars(sa.select(Contract).where(*conditions)).all()
+    else:
+        contracts = db.session.scalars(sa.select(Contract)).all()
+
     contracts = [contract.serialize() for contract in contracts]
 
     return jsonify(contracts), 200
