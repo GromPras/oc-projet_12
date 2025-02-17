@@ -115,9 +115,7 @@ def client_show(id):
 @bp.route("/clients/<id>", methods=["PUT", "DELETE"])
 @token_auth.login_required(role="sales")
 def client_update(id):
-    client = db.session.scalar(sa.select(Client).where(Client.id == id))
-    if not client:
-        return {"error": "Client doesn't exists"}, 404
+    client = db.get_or_404(Client, id)
     user = token_auth.current_user()
     if user and not user.id == client.sales_contact_id:
         return {"error": "You are not authorize to do this"}, 403
@@ -150,7 +148,7 @@ def client_update(id):
 @token_auth.login_required()
 def contract_index():
     contracts = db.session.scalars(sa.select(Contract)).all()
-    contracts = [contract.serialize for contract in contracts]
+    contracts = [contract.serialize() for contract in contracts]
 
     return jsonify(contracts), 200
 
@@ -160,7 +158,7 @@ def contract_index():
 @token_auth.login_required()
 def contract_show(id):
     contract = db.get_or_404(Contract, id)
-    return jsonify(contract.serialize), 200
+    return jsonify(contract.serialize()), 200
 
 
 # create [auth, admin]
@@ -177,7 +175,7 @@ def contract_create():
     db.session.add(contract)
     db.session.commit()
 
-    return contract.serialize, 201
+    return contract.serialize(), 201
 
 
 # update [auth, admin]
@@ -205,7 +203,7 @@ def contract_update(id):
                     )
                 setattr(contract, field, data[field])
         db.session.commit()
-        return contract.serialize, 200
+        return contract.serialize(), 200
     if request.method == "DELETE":
         db.session.delete(contract)
         db.session.commit()
@@ -290,7 +288,6 @@ def event_add_support(id):
 
 
 # update [auth, sales]
-# destroy [auth, author]
 @bp.route("/events/<id>", methods=["PUT"])
 @token_auth.login_required(role="support")
 def event_update(id):
@@ -316,6 +313,7 @@ def event_update(id):
     return event.serialize, 200
 
 
+# destroy [auth, author]
 @bp.route("/events/<id>", methods=["DELETE"])
 @token_auth.login_required(role="sales")
 def event_destroy(id):

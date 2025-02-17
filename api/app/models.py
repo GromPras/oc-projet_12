@@ -198,19 +198,20 @@ class Contract(db.Model):
     def get_events(self):
         return [event.serialize for event in self.events] if self.events else []
 
-    @property
-    def serialize(self):
-        return {
+    def serialize(self, events=True):
+        contract = {
             "id": self.id,
             "client": self.get_client(),
             "sales_contact": self.get_sales_contact(),
             "total_amount": self.total_amount,
             "remaining_amount": self.remaining_amount,
             "status": self.status.value,
-            "events": self.get_events(),
             "created_at": self.created_at,
             "updated_at": self.updated_at,
         }
+        if events:
+            contract["events"] = self.get_events()
+        return contract
 
     def deserialize(self, data):
         for field in ["client_id", "sales_contact_id", "total_amount"]:
@@ -255,6 +256,9 @@ class Event(db.Model):
         default=lambda: datetime.now(timezone.utc)
     )
 
+    def get_contract(self):
+        return self.contract.serialize(events=False) if self.contract else None
+
     def get_client(self):
         return self.client.serialize if self.client else None
 
@@ -270,6 +274,7 @@ class Event(db.Model):
         return {
             "id": self.id,
             "title": self.title,
+            "contract": self.get_contract(),
             "client": self.get_client(),
             "sales_contact": self.get_sales_contact(),
             "support_contact": self.get_support_contact(),
