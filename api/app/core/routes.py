@@ -13,7 +13,14 @@ from app.auth.auth import token_auth
 @bp.route("/users", methods=["GET"])
 @token_auth.login_required(role="admin")
 def user_index():
-    users = db.session.scalars(sa.select(User)).all()
+    conditions = []
+    filter_dept = request.args.get("dept")
+    if filter_dept and filter_dept.upper() in Role._member_names_:
+        conditions.append(User.role == Role(filter_dept))
+    if conditions:
+        users = db.session.scalars(sa.select(User).where(*conditions)).all()
+    else:
+        users = db.session.scalars(sa.select(User)).all()
     users = [user.serialize for user in users]
     return jsonify(users), 200
 
