@@ -81,7 +81,8 @@ def show(id: int):
         f"http://localhost:5000/contracts/{id}",
         headers={"Authorization": f"Bearer {token}"},
     )
-    print(handle_response(response))
+    data = handle_response(response)
+    contract_show_view(data)
 
 
 @app.command()
