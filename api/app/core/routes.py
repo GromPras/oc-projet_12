@@ -191,12 +191,19 @@ def contract_show(id):
 @token_auth.login_required(role="admin")
 def contract_create():
     data = request.get_json()
-    required_fields = ["client_id", "sales_contact_id", "total_amount"]
+    required_fields = ["client_id", "total_amount"]
     for field in required_fields:
         if field not in data:
             return {"error": "Bad request"}, 400
+    client = db.get_or_404(Client, data["client_id"])
     contract = Contract()
-    contract.deserialize(data)
+    contract.deserialize(
+        {
+            "client_id": client.id,
+            "sales_contact_id": client.sales_contact.id,
+            "total_amount": data["total_amount"],
+        }
+    )
     db.session.add(contract)
     db.session.commit()
 

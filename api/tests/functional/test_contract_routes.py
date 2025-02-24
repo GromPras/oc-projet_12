@@ -119,7 +119,6 @@ def test_contract_create(client):
     token = get_token(client, "admin")
     new_contract = {
         "client_id": 1,
-        "sales_contact_id": 1,
         "total_amount": 999.99,
     }
     response = client.post(
