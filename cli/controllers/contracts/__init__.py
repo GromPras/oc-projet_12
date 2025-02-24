@@ -85,7 +85,10 @@ def show(id: int):
 
 @app.command()
 def update(
-    id: Annotated[int, typer.Option("--id", "-i", help="The contract id")],
+    ctx: typer.Context,
+    id: Annotated[
+        Optional[int], typer.Option("--id", "-i", help="The contract id")
+    ] = None,
     total_amount: Annotated[
         Optional[float],
         typer.Option("--amount", help="The contract amount"),
@@ -98,20 +101,18 @@ def update(
         Optional[str], typer.Option("--status", help="The status")
     ] = None,
 ):
+    if not id:
+        ctx.invoke(list)
+        id = typer.prompt("Please choose a contract to update")
     payload = {}
-    payload["total_amount"] = (
-        total_amount if total_amount and total_amount is float else None
-    )
-    payload["remaining_amount"] = (
-        remaining_amount if remaining_amount and remaining_amount is float else None
-    )
+    payload["total_amount"] = float(total_amount) if total_amount else None
+    payload["remaining_amount"] = float(remaining_amount) if remaining_amount else None
     payload["status"] = validate_contract_status(status) if status else None
     update_contract = {}
     for key in payload:
         if payload[key] is not None:
             update_contract[key] = payload[key]
     if update_contract.keys():
-        token = authenticate()
         token = authenticate()
         response = requests.put(
             f"http://localhost:5000/contracts/{id}",
@@ -122,15 +123,26 @@ def update(
             data=json.dumps(update_contract),
         )
         data = handle_response(response)
-        message_show_view({"Success": "Contract Created"})
+        message_show_view({"Success": "Contract Updated"})
         contract_show_view(data)
 
 
 @app.command()
 def delete(id: int):
     token = authenticate()
+    contract = requests.get(
+        f"http://localhost:5000/contracts/{id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    data = handle_response(contract)
+    contract_show_view(data)
+    typer.confirm(
+        "Do you really want to delete this contract? There is no going back.",
+        abort=True,
+    )
     response = requests.delete(
         f"http://localhost:5000/contracts/{id}",
         headers={"Authorization": f"Bearer {token}"},
     )
-    print(handle_response(response))
+    data = handle_response(response)
+    message_show_view(data)
