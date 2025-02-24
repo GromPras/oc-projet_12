@@ -220,7 +220,6 @@ def contract_update(id):
     if request.method == "PUT":
         data = request.get_json()
         allowed_fields = [
-            "sales_contact_id",
             "total_amount",
             "remaining_amount",
             "status",
