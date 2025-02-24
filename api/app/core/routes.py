@@ -13,8 +13,7 @@ from app.auth.auth import token_auth
 @bp.route("/users", methods=["GET"])
 @token_auth.login_required(role="admin")
 def user_index():
-    stmt = db.select(User)
-    users = db.session.execute(stmt).scalars().all()
+    users = db.session.scalars(sa.select(User)).all()
     users = [user.serialize for user in users]
     return jsonify(users), 200
 
