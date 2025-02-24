@@ -44,12 +44,12 @@ def create(
 
 @app.command()
 def list(
-    pending: Annotated[
-        Optional[bool],
+    status: Annotated[
+        Optional[str],
         typer.Option(
-            help="Filter the results to display pending contracts only 'owing' to display results with remaining amount"
+            help="Option to filter the results, values are: 'pending' or 'signed'"
         ),
-    ] = False,
+    ] = None,
     owing: Annotated[
         Optional[bool],
         typer.Option(
@@ -58,11 +58,12 @@ def list(
     ] = False,
 ):
     active_filters = ""
-    if pending:
-        active_filters += "?status=pending"
+    if status:
+        status = validate_contract_status(status)
+        active_filters += f"?status={status}"
     if owing:
         active_filters += (
-            "&remaining-amount=true" if pending else "?remaining-amount=true"
+            "&remaining-amount=true" if status else "?remaining-amount=true"
         )
     token = authenticate()
     response = requests.get(

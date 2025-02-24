@@ -75,10 +75,23 @@ def create(
 
 
 @app.command()
-def list():
+def list(
+    department: Annotated[
+        Optional[str],
+        typer.Option(
+            help="Optionally give a department to filter results. Options are 'admin', 'sales' or 'support'"
+        ),
+    ],
+):
+    active_filters = ""
+    if department:
+        dept = validate_role(department)
+        active_filters += f"?dept={dept}"
+
     token = authenticate()
     response = requests.get(
-        "http://localhost:5000/users", headers={"Authorization": f"Bearer {token}"}
+        f"http://localhost:5000/users{active_filters}",
+        headers={"Authorization": f"Bearer {token}"},
     )
     data = handle_response(response)
     users_list_view(data)

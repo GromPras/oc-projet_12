@@ -32,3 +32,34 @@ def events_list_view(events):
 
     console = Console()
     console.print(table)
+
+
+def event_show_view(event):
+    table = Table(title="Event")
+    table.add_column("ID")
+    table.add_column("Title")
+    table.add_column("Contract ID")
+    table.add_column("Client")
+    table.add_column("Sales Rep")
+    table.add_column("Support Rep")
+    table.add_column("Start")
+    table.add_column("End")
+    table.add_column("Location")
+
+    table.add_row(
+        str(event["id"]),
+        str(event["title"]),
+        str(event["contract"]["id"]),
+        str(event["client"]["fullname"]),
+        str(event["sales_contact"]["fullname"]),
+        str(event["support_contact"]["fullname"] if event["support_contact"] else ""),
+        str(event["event_start"]),
+        str(event["event_end"]),
+        str(event["location"]),
+    )
+
+    console = Console()
+    console.print(table)
+    if event["notes"]:
+        console.print("Notes :")
+        console.print(str(event["notes"]))
