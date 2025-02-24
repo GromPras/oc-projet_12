@@ -11,7 +11,7 @@ from app.auth.auth import token_auth
 
 # index [auth, admin]
 @bp.route("/users", methods=["GET"])
-@token_auth.login_required(role="admin")
+@token_auth.login_required(role=["admin", "sales"])
 def user_index():
     conditions = []
     filter_dept = request.args.get("dept")
