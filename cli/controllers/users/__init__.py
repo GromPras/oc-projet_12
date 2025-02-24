@@ -142,6 +142,7 @@ def update(
     else:
         payload["email"] = None
     payload["role"] = validate_role(department) if department else None
+    payload["phone"] = phone if phone else None
     payload["password"] = password if password else None
     update_user = {}
     for key in payload:
