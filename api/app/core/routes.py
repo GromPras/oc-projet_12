@@ -1,6 +1,5 @@
 import sqlalchemy as sa
 from flask import jsonify, request
-from werkzeug.security import generate_password_hash
 from app import db
 from app.core import bp
 from app.models import Contract, ContractStatus, Role, User, Client, Event
@@ -50,8 +49,10 @@ def user_create():
 @token_auth.login_required(role="admin")
 def user_update(id):
     user = db.get_or_404(User, id)
+    # Return one User
     if request.method == "GET":
         return user.serialize, 200
+    # Update a User
     elif request.method == "PUT":
         data = request.get_json()
         allowed_fields = ["fullname", "email", "phone", "role", "password"]
@@ -63,6 +64,7 @@ def user_update(id):
                     setattr(user, field, data[field])
         db.session.commit()
         return user.serialize, 200
+    # Delete a User
     elif request.method == "DELETE":
         db.session.delete(user)
         db.session.commit()
@@ -77,10 +79,12 @@ def user_update(id):
 @bp.route("/clients", methods=["GET", "POST"])
 @token_auth.login_required()
 def client_index():
+    # Return all clients
     if request.method == "GET":
         clients = db.session.scalars(sa.select(Client).join(Client.sales_contact)).all()
         clients = [client.serialize for client in clients]
         return jsonify(clients)
+    # Create a Client
     elif request.method == "POST":
         author = token_auth.current_user()
         if author:
@@ -122,6 +126,7 @@ def client_update(id):
     if user and not user.id == client.sales_contact_id:
         return {"error": "You are not authorize to do this"}, 403
     else:
+        # Update a User
         if request.method == "PUT":
             data = request.get_json()
             allowed_fields = [
@@ -136,6 +141,7 @@ def client_update(id):
                     setattr(client, field, data[field])
             db.session.commit()
             return client.serialize, 200
+        # Delete a User
         elif request.method == "DELETE":
             db.session.delete(client)
             db.session.commit()
@@ -197,6 +203,7 @@ def contract_create():
 @token_auth.login_required(role="admin")
 def contract_update(id):
     contract = db.get_or_404(Contract, id)
+    # Update a Contract
     if request.method == "PUT":
         data = request.get_json()
         allowed_fields = [
@@ -217,6 +224,7 @@ def contract_update(id):
                 setattr(contract, field, data[field])
         db.session.commit()
         return contract.serialize(), 200
+    # Delete a Contract
     if request.method == "DELETE":
         db.session.delete(contract)
         db.session.commit()
