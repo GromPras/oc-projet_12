@@ -81,3 +81,14 @@ def validate_role(department: str):
         )
         raise typer.Exit()
     return dept
+
+
+def validate_contract_status(status: str):
+    valid_status = ["pending", "signed"]
+    status = status.lower().strip()
+    if status not in valid_status:
+        message_show_view(
+            {"Error": "Unknown status. Valid values are: 'pending' or 'signed'"}
+        )
+        raise typer.Exit()
+    return status

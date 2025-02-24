@@ -79,7 +79,10 @@ def show(id: int):
 
 @app.command()
 def update(
-    id: Annotated[int, typer.Option("--id", "-i", prompt=True, help="The client id")],
+    ctx: typer.Context,
+    id: Annotated[
+        Optional[int], typer.Option("--id", "-i", help="The client id")
+    ] = None,
     fullname: Annotated[
         Optional[str],
         typer.Option("--fullname", "-n", prompt=True, help="The client full name"),
@@ -97,6 +100,9 @@ def update(
         typer.Option("--company", "-c", prompt=True, help="The company name"),
     ] = None,
 ):
+    if not id:
+        ctx.invoke(list)
+        id = typer.prompt("Please choose client to update")
     payload = {}
     payload["fullname"] = sanitize_fullname(fullname) if fullname else None
     if email:
