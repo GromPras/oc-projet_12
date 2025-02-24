@@ -282,7 +282,6 @@ def event_create():
     required_fields = [
         "title",
         "contract_id",
-        "client_id",
         "event_start",
         "event_end",
         "location",
@@ -292,17 +291,16 @@ def event_create():
         if not field in data:
             return {"error": "Bad request"}, 400
     # make sure client exists, contract is related and current_user is in contact
-    client = db.get_or_404(Client, data["client_id"])
     contract = db.get_or_404(Contract, data["contract_id"])
     current_user = token_auth.current_user()
     if (
-        not contract.client_id == client.id
-        or not client.sales_contact_id == current_user.id
+        not contract.sales_contact_id == current_user.id
         or not contract.status.value == "signed"
     ):
         return {"error": "You are not authorized to do this"}, 403
 
     data["sales_contact_id"] = current_user.id
+    data["client_id"] = contract.client.id
     event = Event()
     event.deserialize(data)
     db.session.add(event)

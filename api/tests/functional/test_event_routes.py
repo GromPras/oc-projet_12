@@ -143,7 +143,6 @@ def test_event_create(client):
     new_event = {
         "title": "test title",
         "contract_id": 1,
-        "client_id": 1,
         "event_start": "2024-05-11 00:00:00",
         "event_end": "2024-03-07 00:00:00",
         "location": "test",
