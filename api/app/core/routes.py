@@ -164,8 +164,8 @@ def contract_index():
     conditions = []
     filter_status = request.args.get("status")
     filter_remaining_amount = request.args.get("remaining-amount")
-    if filter_status and filter_status == "pending":
-        conditions.append(Contract.status == ContractStatus.PENDING)
+    if filter_status and filter_status.upper() in ContractStatus._member_names_:
+        conditions.append(Contract.status == ContractStatus(filter_status))
     if filter_remaining_amount:
         conditions.append(Contract.remaining_amount > 0.0)
     if conditions:
