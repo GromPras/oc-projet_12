@@ -9,8 +9,14 @@ from cli.views.events import events_list_view, event_show_view
 from cli.controllers.contracts import list as contracts_list
 from cli.controllers.users import list as users_list
 from cli.views.shared import message_show_view
+from cli.rbac import authorize
 
 app = typer.Typer()
+
+
+@app.callback()
+def authorize_commands(ctx: typer.Context):
+    authorize(ctx)
 
 
 @app.command()

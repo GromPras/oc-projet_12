@@ -7,8 +7,14 @@ from cli.views.shared import message_show_view
 from email_validator import validate_email, EmailNotValidError
 from typing import Optional
 from typing_extensions import Annotated
+from cli.rbac import authorize
 
 app = typer.Typer()
+
+
+@app.callback()
+def authorize_commands(ctx: typer.Context):
+    authorize(ctx)
 
 
 @app.command()
@@ -81,7 +87,7 @@ def list(
         typer.Option(
             help="Optionally give a department to filter results. Options are 'admin', 'sales' or 'support'"
         ),
-    ],
+    ] = None,
 ):
     active_filters = ""
     if department:

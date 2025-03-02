@@ -8,8 +8,14 @@ from cli.helpers import authenticate, handle_response, validate_contract_status
 from cli.views.contracts import contracts_list_view, contract_show_view
 from cli.controllers.clients import list as clients_list
 from cli.views.shared import message_show_view
+from cli.rbac import authorize
 
 app = typer.Typer()
+
+
+@app.callback()
+def authorize_commands(ctx: typer.Context):
+    authorize(ctx)
 
 
 @app.command()

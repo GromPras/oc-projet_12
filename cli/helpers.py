@@ -5,9 +5,13 @@ import typer
 from .views.shared import message_show_view
 
 APP_NAME = "epicevent-cli"
+app_dir = typer.get_app_dir(APP_NAME)
+app_dir_path = Path(app_dir)
+app_dir_path.mkdir(parents=True, exist_ok=True)
+token_path: Path = Path(app_dir) / "token.txt"
 
 
-def log_user_in(token_path):
+def log_user_in():
     token = None
     print("Log in:")
     username = typer.prompt("Username (email)")
@@ -24,21 +28,13 @@ def log_user_in(token_path):
 
 
 def authenticate():
-    app_dir = typer.get_app_dir(APP_NAME)
-    app_dir_path = Path(app_dir)
-    app_dir_path.mkdir(parents=True, exist_ok=True)
-    token_path: Path = Path(app_dir) / "token.txt"
     token = None
     if token_path.is_file():
         with open(token_path, "r") as file:
             token = file.read()
-        response = requests.get(
-            "http://localhost:5000/tokens", headers={"Authorization": f"Bearer {token}"}
-        )
-        if not response.status_code == 200:
-            token = log_user_in(token_path)
     else:
-        token = log_user_in(token_path)
+        token = log_user_in()
+
     return token
 
 

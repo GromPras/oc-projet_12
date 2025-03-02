@@ -1,5 +1,8 @@
+import functools
+import json
 import os
 from pathlib import Path
+import requests
 import typer
 
 from .version import app as version_app
@@ -7,6 +10,8 @@ from .controllers.clients import app as clients_app
 from .controllers.contracts import app as contracts_app
 from .controllers.events import app as events_app
 from .controllers.users import app as users_app
+from cli.helpers import authenticate
+from cli.views.shared import message_show_view
 
 APP_NAME = "epicevent-cli"
 

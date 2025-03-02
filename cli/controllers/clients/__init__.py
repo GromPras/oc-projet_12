@@ -9,8 +9,14 @@ import typer
 from cli.helpers import authenticate, handle_response, sanitize_fullname
 from cli.views.clients import clients_list_view, client_show_view
 from cli.views.shared import message_show_view
+from cli.rbac import authorize
 
 app = typer.Typer()
+
+
+@app.callback()
+def authorize_commands(ctx: typer.Context):
+    authorize(ctx)
 
 
 @app.command()
