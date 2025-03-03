@@ -7,7 +7,6 @@ from cli.views.shared import message_show_view
 
 def authorize(ctx: typer.Context):
     object_action = f"{ctx.command.name}:{ctx.invoked_subcommand}"
-    print(object_action)
     token = authenticate()
     authorized = requests.post(
         "http://localhost:5000/authorizations",
