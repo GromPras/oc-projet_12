@@ -1,10 +1,10 @@
+import sentry_sdk
 import sqlalchemy as sa
 from flask import jsonify, request
 from app import db
 from app.core import bp
 from app.models import Contract, ContractStatus, Role, User, Client, Event
 from app.auth.auth import token_auth
-
 
 # User views
 
@@ -41,6 +41,9 @@ def user_create():
     user.deserialize(data, new_user=True)
     db.session.add(user)
     db.session.commit()
+    sentry_sdk.capture_message(
+        f"{token_auth.current_user().fullname} created a new user: {user.fullname}"
+    )
 
     return user.serialize, 201
 
@@ -69,6 +72,9 @@ def user_update(id):
                 else:
                     setattr(user, field, data[field])
         db.session.commit()
+        sentry_sdk.capture_message(
+            f"{token_auth.current_user().fullname} updated a user: {user.fullname}"
+        )
         return user.serialize, 200
     # Delete a User
     elif request.method == "DELETE":
@@ -217,6 +223,7 @@ def contract_create():
 def contract_update(id):
     contract = db.get_or_404(Contract, id)
     # Update a Contract
+    contract_signed = False
     if request.method == "PUT":
         data = request.get_json()
         allowed_fields = [
@@ -228,13 +235,16 @@ def contract_update(id):
             if field in data:
                 # convert status string to enum if set
                 if field == "status":
-                    data[field] = (
-                        ContractStatus.SIGNED
-                        if data[field] == "signed"
-                        else ContractStatus.PENDING
-                    )
+                    if data[field] == "signed":
+                        data[field] = ContractStatus.SIGNED
+                        contract_signed = True
                 setattr(contract, field, data[field])
         db.session.commit()
+        if contract_signed:
+            sentry_sdk.capture_message(
+                f"{token_auth.current_user().fullname} signed a contract for: {contract.client.fullname} (contract: {contract.id})"
+            )
+
         return contract.serialize(), 200
     # Delete a Contract
     if request.method == "DELETE":

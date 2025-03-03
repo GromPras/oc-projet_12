@@ -12,8 +12,6 @@ migrate = Migrate()
 def create_app(config_class=Config):
     sentry_sdk.init(
         dsn="https://13bd9cf5b2b9f887a5716fedb0c1c17e@o4508912268738560.ingest.de.sentry.io/4508912270442576",
-        # Add data like request headers and IP for users,
-        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
         send_default_pii=True,
     )
 
