@@ -19,7 +19,13 @@ git clone https://github.com/GromPras/oc-projet_12.git
 
 `Ou téléchargez le fichier ZIP depuis https://github.com/GromPras/oc-projet_12/archive/refs/heads/main.zip`
 
-Créez un environement virtuel à l'intérieur du dossier cloné:
+Avec uv:
+```sh
+cd oc-projet_12
+uv sync
+```
+
+Sinon, créez un environement virtuel à l'intérieur du dossier cloné:
 
 ```sh
 cd oc-projet_12
@@ -44,11 +50,7 @@ Sur Windows, appelez la commande venv comme suit :
 C:\> <venv>\Scripts\activate.bat
 ```
 
-Installez les dépendances du projet à l'aide de votre gestionnaire favori:
-
-```sh
-uv sync
-```
+Installez les dépendances du projet à l'aide de votre gestionnaire favori.
 
 Si vous avez un problème avec la création de l'environnement consultez la documentation : `https://docs.python.org/fr/3/library/venv.html#creating-virtual-environments`
 
@@ -57,18 +59,20 @@ Si vous avez un problème avec la création de l'environnement consultez la docu
 #### Pour lancer le programme, exécutez les commandes suivantes :
 Préparer la base de données et importer les données de test
 ```sh
-cd api/
+# oc-projet_12/api/
 python3 flask db upgrade
 sqlite3 instance/app.db < db.txt
 ```
 
 Lancer le server flask
 ```sh
+# oc-projet_12/api/
 python3 flask run
 ```
 
 Utilisez les commandes du CRM
 ```sh
+# oc-projet_12/cli/
 python3 -m cli.main --help
 ```
 
