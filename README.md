@@ -55,10 +55,15 @@ Si vous avez un problème avec la création de l'environnement consultez la docu
 ### Post Installation
 
 #### Pour lancer le programme, exécutez les commandes suivantes :
+Préparer la base de données et importer les données de test
+```sh
+cd api/
+python3 flask db upgrade
+sqlite3 instance/app.db < db.txt
+```
 
 Lancer le server flask
 ```sh
-cd api/
 python3 flask run
 ```
 
