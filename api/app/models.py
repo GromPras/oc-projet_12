@@ -1,6 +1,6 @@
 import enum
 import secrets
-from datetime import datetime, timedelta, timezone, tzinfo
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import sqlalchemy as sa
@@ -29,6 +29,18 @@ class Role(enum.Enum):
 class ContractStatus(enum.Enum):
     PENDING = "pending"
     SIGNED = "signed"
+
+
+def validate_email(address):
+    if "@" not in address:
+        raise AssertionError("Invalid email address")
+    return address
+
+
+def validate_phone_number(number):
+    if len(number) != 10:
+        raise AssertionError("Phone number should contain 10 numbers")
+    return number
 
 
 sales_events = db.Table(
@@ -108,15 +120,12 @@ class User(db.Model):
         return user
 
     @validates("email")
-    def validate_email(self, key, address):
-        assert "@" in address
-        return address
+    def validate_user_email(self, key, address):
+        return validate_email(address)
 
     @validates("phone")
-    def validate_phone(self, key, number):
-        if len(number) != 10:
-            raise AssertionError("Phone number should contain 10 numbers")
-        return number
+    def validate_user_phone(self, key, number):
+        return validate_phone_number(number)
 
 
 class Client(db.Model):
@@ -160,6 +169,14 @@ class Client(db.Model):
         for field in ["fullname", "email", "phone", "company", "sales_contact"]:
             if field in data:
                 setattr(self, field, data[field])
+
+    @validates("email")
+    def validate_client_email(self, key, address):
+        return validate_email(address)
+
+    @validates("phone")
+    def validate_client_phone(self, key, number):
+        return validate_phone_number(number)
 
 
 class Contract(db.Model):
