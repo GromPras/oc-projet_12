@@ -1,10 +1,10 @@
 import sentry_sdk
 import sqlalchemy as sa
-from flask import jsonify, request
 from app import db
-from app.core import bp
-from app.models import Contract, ContractStatus, Role, User, Client, Event
 from app.auth.auth import token_auth
+from app.core import bp
+from app.models import Client, Contract, ContractStatus, Event, Role, User
+from flask import jsonify, request
 
 # User views
 
@@ -35,8 +35,7 @@ def user_create():
         if field not in data:
             return {"error": "Bad request"}, 400
     if db.session.scalar(sa.select(User).where(User.email == data["email"])):
-        # Don't return a clear message to avoid finding if email exists
-        return {"error": "Bad request email"}, 400
+        return {"error": "Email already exists"}, 400
     user = User()
     user.deserialize(data, new_user=True)
     db.session.add(user)
@@ -46,9 +45,6 @@ def user_create():
     )
 
     return user.serialize, 201
-
-
-# TODO: keep all routes on same function or separate?
 
 
 # show [auth, admin]

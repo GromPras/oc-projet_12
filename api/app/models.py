@@ -1,17 +1,18 @@
-from datetime import datetime, timedelta, timezone, tzinfo
 import enum
 import secrets
+from datetime import datetime, timedelta, timezone, tzinfo
 from typing import Optional
-from typing_extensions import List
+
 import sqlalchemy as sa
+from app import db
 from sqlalchemy.orm import (
+    DeclarativeBase,
     Mapped,
     mapped_column,
     relationship,
-    DeclarativeBase,
     validates,
 )
-from app import db
+from typing_extensions import List
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -42,9 +43,6 @@ support_events = db.Table(
     db.Column("user_id", db.ForeignKey("user.id"), primary_key=True),
     db.Column("event_id", db.ForeignKey("event.id"), primary_key=True),
 )
-
-# TODO: add author on every model for delete permissions
-# TODO: add author (will serve for event creation restrictions)
 
 
 class User(db.Model):
@@ -108,13 +106,6 @@ class User(db.Model):
         ) < datetime.now(timezone.utc):
             return None
         return user
-
-    # event_sales: Mapped[Optional[List["Event"]]] = relationship(
-    #     secondary=sales_events, back_populates="sales_contact"
-    # )
-    # event_support: Mapped[Optional[List["Event"]]] = relationship(
-    #     secondary=support_events, back_populates="support_contact"
-    # )
 
 
 class Client(db.Model):
@@ -247,7 +238,6 @@ class Event(db.Model):
     event_end: Mapped[datetime] = mapped_column()
     location: Mapped[str] = mapped_column(sa.String(120))
     attendees: Mapped[int] = mapped_column(sa.Integer)
-    # make notes optional
     notes: Mapped[Optional[str]] = mapped_column(sa.Text())
     created_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc)
