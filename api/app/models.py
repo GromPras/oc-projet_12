@@ -107,6 +107,17 @@ class User(db.Model):
             return None
         return user
 
+    @validates("email")
+    def validate_email(self, key, address):
+        assert "@" in address
+        return address
+
+    @validates("phone")
+    def validate_phone(self, key, number):
+        if len(number) != 10:
+            raise AssertionError("Phone number should contain 10 numbers")
+        return number
+
 
 class Client(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)

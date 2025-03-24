@@ -1,7 +1,9 @@
-from pathlib import Path
 import html
+from pathlib import Path
+
 import requests
 import typer
+
 from .views.shared import message_show_view
 
 APP_NAME = "epicevent-cli"
@@ -42,7 +44,7 @@ def handle_response(response):
     if response.status_code == 200 or response.status_code == 201:
         return response.json()
     elif response.status_code == 400:
-        message_show_view({"Error": "Bad request"})
+        message_show_view(response.json())
         raise typer.Exit()
     elif response.status_code == 401:
         message_show_view({"Error": "You don't have access"})

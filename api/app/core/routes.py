@@ -36,15 +36,17 @@ def user_create():
             return {"error": "Bad request"}, 400
     if db.session.scalar(sa.select(User).where(User.email == data["email"])):
         return {"error": "Email already exists"}, 400
-    user = User()
-    user.deserialize(data, new_user=True)
-    db.session.add(user)
-    db.session.commit()
-    sentry_sdk.capture_message(
-        f"{token_auth.current_user().fullname} created a new user: {user.fullname}"
-    )
-
-    return user.serialize, 201
+    try:
+        user = User()
+        user.deserialize(data, new_user=True)
+        db.session.add(user)
+        db.session.commit()
+        sentry_sdk.capture_message(
+            f"{token_auth.current_user().fullname} created a new user: {user.fullname}"
+        )
+        return user.serialize, 201
+    except AssertionError as e:
+        return {"error": f"{e}"}, 400
 
 
 # show [auth, admin]
