@@ -72,7 +72,7 @@ python3 flask run
 
 Utilisez les commandes du CRM
 ```sh
-# oc-projet_12/cli/
+# oc-projet_12/
 python3 -m cli.main --help
 ```
 
