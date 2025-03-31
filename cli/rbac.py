@@ -1,7 +1,9 @@
 import json
+
 import requests
 import typer
-from cli.helpers import authenticate
+
+from cli.helpers import authenticate, log_user_in
 from cli.views.shared import message_show_view
 
 
@@ -16,6 +18,8 @@ def authorize(ctx: typer.Context):
         },
         data=json.dumps({"target": object_action}),
     )
+    if authorized.status_code == 401:
+        return log_user_in()
     if not authorized.ok:
         message_show_view({"Error": "You are not authorized"})
         raise typer.Exit()
