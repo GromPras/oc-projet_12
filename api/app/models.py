@@ -120,11 +120,11 @@ class User(db.Model):
         return user
 
     @validates("email")
-    def validate_user_email(self, key, address):
+    def validate_user_email(self, _, address):
         return validate_email(address)
 
     @validates("phone")
-    def validate_user_phone(self, key, number):
+    def validate_user_phone(self, _, number):
         return validate_phone_number(number)
 
 
@@ -171,11 +171,11 @@ class Client(db.Model):
                 setattr(self, field, data[field])
 
     @validates("email")
-    def validate_client_email(self, key, address):
+    def validate_client_email(self, _, address):
         return validate_email(address)
 
     @validates("phone")
-    def validate_client_phone(self, key, number):
+    def validate_client_phone(self, _, number):
         return validate_phone_number(number)
 
 
